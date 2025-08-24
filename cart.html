@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MakeHive - Cart</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <header>
+    <div class="logo">MakeHive</div>
+    <div class="search-bar">
+      <input type="text" placeholder="Search for products...">
+      <button></button>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="cart.html" class="active">Cart</a>
+      <a href="profile.html">Profile</a>
+      <a href="#" class="seller-btn">Become a Seller</a>
+    </nav>
+  </header>
+
+  <!-- Cart Section -->
+  <section class="recommendations">
+    <h2>Your Cart</h2>
+    <div class="scroll-container" style="flex-direction:column;overflow-x:hidden;">
+      <div class="product" style="display:flex;align-items:center;gap:20px;">
+        <img src="images/handvase.jpg" alt="Handmade Vase" style="width:100px;">
+        <div>
+          <p>Handmade Vase</p>
+          <span>₹499</span>
+        </div>
+        <button class="signin-btn" style="margin-left:auto;">Remove</button>
+      </div>
+      <div class="product" style="display:flex;align-items:center;gap:20px;">
+        <img src="images/crochet.jpg" alt="Crochet Bag" style="width:100px;">
+        <div>
+          <p>Crochet Bag</p>
+          <span>₹799</span>
+        </div>
+        <button class="signin-btn" style="margin-left:auto;">Remove</button>
+      </div>
+    </div>
+    <div style="text-align:right;margin-top:20px;">
+      <p><strong>Total:</strong> ₹1,298</p>
+      <a href="payment.html"><button class="signin-btn">Proceed to Checkout</button></a>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 MakeHive. All rights reserved.</p>
+  </footer>
+</body>
+</html>

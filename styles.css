@@ -1,0 +1,215 @@
+/* General Styling */
+{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  background-color: #fdfcfb; /* pastel beige */
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Navbar */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+  background: #fffaf6;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo {
+  font-family: "Dancing Script", cursive;
+  font-size: 30px;
+  font-weight: 600;
+  color: #222;
+}
+
+.search-bar {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  margin: 0 20px;
+}
+
+.search-bar input {
+  width: 60%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 25px 0 0 25px;
+  outline: none;
+}
+
+.search-bar button {
+  padding: 8px 12px;
+  border: none;
+  background: #f4d9d0;
+  border-radius: 0 25px 25px 0;
+  cursor: pointer;
+}
+
+nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: #444;
+  font-weight: 500;
+}
+
+.seller-btn {
+  background: #e6b8a2;
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: white;
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  padding: 80px 20px;
+  background: #faf7f5;
+}
+
+.hero h1 {
+  font-size: 32px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.hero p {
+  font-size: 18px;
+  color: #666;
+}
+
+/* Category Circles */
+.categories {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  padding: 30px;
+  text-align: center;
+  background: #fff;
+}
+
+.circle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.circle img {
+  background: #faf7f5;
+  border-radius: 50%;
+  padding: 20px;
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.circle p {
+  margin-top: 10px;
+  font-weight: 500;
+  color: #444;
+}
+
+/* Recommendations Section */
+.recommendations {
+  padding: 40px 20px;
+  background: #fff;
+}
+
+.recommendations h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 26px;
+}
+
+.scroll-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+  padding: 10px;
+  scroll-behavior: smooth;
+}
+
+.scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background: #e6b8a2;
+  border-radius: 10px;
+}
+
+.product {
+  min-width: 180px;
+  background: #faf7f5;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.product:hover {
+  transform: translateY(-5px);
+}
+
+.product img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.product p {
+  margin: 10px 0;
+  font-weight: 500;
+}
+
+.product span {
+  color: #e67a50;
+  font-weight: bold;
+}
+
+/* Sign In Section */
+.signin-section {
+  text-align: center;
+  padding: 40px 20px;
+  background: #faf7f5;
+}
+
+.signin-section p {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #444;
+}
+
+.signin-btn {
+  background: #e6b8a2;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.signin-btn:hover {
+  background: #d49a7b;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 20px;
+  background: #fffaf6;
+  font-size: 14px;
+  color: #555;
+}
