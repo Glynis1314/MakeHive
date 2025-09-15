@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MakeHive - Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .profile-box {
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      text-align: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    .profile-box img {
+      width: 100px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+    .profile-box p {
+      margin: 8px 0;
+      font-size: 16px;
+      color: #333;
+    }
+    .profile-box input {
+      width: 90%;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      display: none; /* hide initially */
+    }
+    .profile-box button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(90deg, #ff6a00, #ff4081);
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    #profileMessage {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <header>
+    <div class="logo">MakeHive</div>
+    <div class="search-bar">
+      <input type="text" placeholder="Search for products...">
+      <button></button>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="cart.html">Cart</a>
+      <a href="profile.html" class="active">Profile</a>
+      <a href="#" class="seller-btn">Become a Seller</a>
+    </nav>
+  </header>
+
+  <!-- Profile Section -->
+  <section class="recommendations">
+    <h2>Your Profile</h2>
+    <div class="profile-box" id="profileBox">
+      <img src="https://img.icons8.com/ios-filled/100/8B4513/user.png" alt="Profile">
+      <p><strong>Name:</strong> <span id="userName">Loading...</span></p>
+      <input type="text" id="editName">
+      <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+      <input type="email" id="editEmail">
+      <p><strong>Phone:</strong> <span id="userPhone">Not Provided</span></p>
+      <input type="text" id="editPhone">
+      <button id="editBtn">Edit Profile</button>
+      <div id="profileMessage"></div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 MakeHive. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const userName = document.getElementById("userName");
+    const userEmail = document.getElementById("userEmail");
+    const userPhone = document.getElementById("userPhone");
+
+    const editName = document.getElementById("editName");
+    const editEmail = document.getElementById("editEmail");
+    const editPhone = document.getElementById("editPhone");
+    const editBtn = document.getElementById("editBtn");
+    const profileMessage = document.getElementById("profileMessage");
+
+    function showMessage(msg, type="error") {
+      profileMessage.textContent = msg;
+      profileMessage.style.color = type === "success" ? "green" : "#b00020";
+    }
+
+    if (!token) {
+      alert("⚠️ You must log in first!");
+      window.location.href = "login.html";
+    }
+
+    async function loadProfile() {
+      try {
+        const res = await fetch("http://localhost:5000/profile", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        if (!res.ok) throw new Error("Failed to fetch profile");
+        const user = await res.json();
+
+        // display
+        userName.textContent = user.username || "N/A";
+        userEmail.textContent = user.email || "N/A";
+        userPhone.textContent = user.phone || "Not Provided";
+
+        // populate input fields for editing
+        editName.value = user.username || "";
+        editEmail.value = user.email || "";
+        editPhone.value = user.phone || "";
+
+      } catch (err) {
+        console.error("Profile fetch error:", err);
+        alert("⚠️ Could not load profile. Please log in again.");
+        localStorage.removeItem("token");
+        window.location.href = "login.html";
+      }
+    }
+
+    loadProfile();
+
+    let editing = false;
+    editBtn.addEventListener("click", async () => {
+      if (!editing) {
+        // show inputs for editing
+        editName.style.display = "block";
+        editEmail.style.display = "block";
+        editPhone.style.display = "block";
+        editBtn.textContent = "Save Changes";
+        editing = true;
+      } else {
+        // save changes
+        const updatedUser = {
+          username: editName.value.trim(),
+          email: editEmail.value.trim(),
+          phone: editPhone.value.trim()
+        };
+
+        try {
+          const res = await fetch("http://localhost:5000/profile", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify(updatedUser)
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            showMessage("✅ Profile updated successfully!", "success");
+            userName.textContent = updatedUser.username;
+            userEmail.textContent = updatedUser.email;
+            userPhone.textContent = updatedUser.phone || "Not Provided";
+
+            editName.style.display = "none";
+            editEmail.style.display = "none";
+            editPhone.style.display = "none";
+            editBtn.textContent = "Edit Profile";
+            editing = false;
+          } else {
+            showMessage("❌ " + (data.error || "Update failed"));
+          }
+        } catch (err) {
+          console.error("Update error:", err);
+          showMessage("⚠️ Network error or server not reachable.");
+        }
+      }
+    });
+  </script>
+</body>
+</html>

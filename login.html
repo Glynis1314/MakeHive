@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MakeHive Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      position: relative;
+      background: url("images/banner.png") no-repeat center center/cover;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(244, 217, 208, 0.6);
+      z-index: 0;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 40px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand {
+      font-family: 'Dancing Script', cursive;
+      font-size: 48px;
+      margin-bottom: 10px;
+      color: #8c3d0c;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    form input {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    form button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(90deg, #ff6a00, #ff4081);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    #loginMessage {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .links {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .links a {
+      color: #ff6a00;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <h1 class="brand">MakeHive</h1>
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input type="email" id="loginEmail" placeholder="Email" required>
+      <input type="password" id="loginPassword" placeholder="Password" required>
+      <button type="submit">Sign In</button>
+      <div id="loginMessage"></div>
+    </form>
+
+    <div class="links">
+      <a href="password.html">Forgot password?</a>
+      <p>Don’t have an account? <a href="signup.html">Sign up</a></p>
+    </div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const loginMsg = document.getElementById("loginMessage");
+
+    function showMessage(msg, type = "error") {
+      loginMsg.textContent = msg;
+      loginMsg.style.color = type === "success" ? "green" : "#b00020";
+    }
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      try {
+        const res = await fetch("http://localhost:5000/signin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const raw = await res.text();
+        let data = {};
+        try {
+          data = raw ? JSON.parse(raw) : {};
+        } catch {
+          data.msg = raw || "Server did not return JSON";
+        }
+
+        if (res.ok && data.token) {
+          // ✅ Store JWT token in localStorage
+          localStorage.setItem("token", data.token);
+
+          showMessage("✅ Login successful! Redirecting...", "success");
+          // Redirect to profile page
+          setTimeout(() => window.location.href = "profile.html", 1200);
+        } else {
+          showMessage("❌ " + (data.error || data.msg || "Login failed"));
+        }
+
+      } catch (err) {
+        console.error("Login error:", err);
+        showMessage("⚠️ Network error or server not reachable.");
+      }
+    });
+  </script>
+</body>
+</html>
