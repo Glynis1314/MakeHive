@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* General */
 /* Background with full image */
 body {
@@ -413,3 +414,420 @@ body {
   background: #c2886c;
 }
 
+=======
+/* General */
+/* Background with full image */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: url("images/login-bg.jpg") no-repeat center center/cover;
+  height: 100vh;
+  display: flex;
+  justify-content: flex-end; /* push container to right */
+  align-items: center;
+}
+
+
+/* Transparent container */
+.login-box {
+  background: rgba(255, 250, 246, 0.85); /* transparent with your color */
+  padding: 40px;
+  border-radius: 12px;
+  width: 350px;
+  margin-right: 60px;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+/* Brand font */
+.brand {
+  font-family: 'Dancing Script', cursive;
+  font-size: 36px;
+  margin-bottom: 20px;
+  color: #d49a7b;
+}
+
+/* Input fields */
+.login-box input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+/* Button */
+.login-box button {
+  width: 100%;
+  padding: 12px;
+  background: #d49a7b;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 10px;
+}
+
+.login-box button:hover {
+  background: #c2886c;
+}
+
+/* Links */
+.links {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.links a {
+  color: #d49a7b;
+  text-decoration: none;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+
+/* Right Side - Image */
+/* Reset */
+/* General Styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  background-color: #fdfcfb; /* pastel beige */
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Navbar */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+  background: #fffaf6;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo {
+  font-family: "Dancing Script", cursive;
+  font-size: 30px;
+  font-weight: 600;
+  color: #222;
+}
+
+.search-bar {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  margin: 0 20px;
+}
+
+.search-bar input {
+  width: 60%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 25px 0 0 25px;
+  outline: none;
+}
+
+.search-bar button {
+  padding: 8px 12px;
+  border: none;
+  background: #f4d9d0;
+  border-radius: 0 25px 25px 0;
+  cursor: pointer;
+}
+
+nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: #444;
+  font-weight: 500;
+}
+
+.seller-btn {
+  background: #e6b8a2;
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: white;
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  padding: 80px 20px;
+  background: #faf7f5;
+}
+
+.hero h1 {
+  font-size: 32px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.hero p {
+  font-size: 18px;
+  color: #666;
+}
+
+/* Category Circles */
+.categories {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  padding: 30px;
+  text-align: center;
+  background: #fff;
+}
+
+.circle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.circle img {
+  background: #faf7f5;
+  border-radius: 50%;
+  padding: 20px;
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.circle p {
+  margin-top: 10px;
+  font-weight: 500;
+  color: #444;
+}
+
+/* Recommendations Section */
+.recommendations {
+  padding: 40px 20px;
+  background: #fff;
+}
+
+.recommendations h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 26px;
+}
+
+.scroll-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+  padding: 10px;
+  scroll-behavior: smooth;
+}
+
+.scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background: #e6b8a2;
+  border-radius: 10px;
+}
+
+.product {
+  min-width: 180px;
+  background: #faf7f5;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.product:hover {
+  transform: translateY(-5px);
+}
+
+.product img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.product p {
+  margin: 10px 0;
+  font-weight: 500;
+}
+
+.product span {
+  color: #e67a50;
+  font-weight: bold;
+}
+
+/* Sign In Section */
+.signin-section {
+  text-align: center;
+  padding: 40px 20px;
+  background: #faf7f5;
+}
+
+.signin-section p {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #444;
+}
+
+.signin-btn {
+  background: #e6b8a2;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.signin-btn:hover {
+  background: #d49a7b;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 20px;
+  background: #fffaf6;
+  font-size: 14px;
+  color: #555;
+}
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  background-color: #fffaf6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Container */
+.forgot-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  padding: 50px;
+  width: 900px;
+  max-width: 95%;
+}
+
+/* Left Section */
+.left-section {
+  flex: 1;
+  padding-right: 30px;
+}
+
+.left-section h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.left-section p {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 25px;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.input-group button {
+  padding: 12px 20px;
+  background-color: #e6b8a2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.3s;
+}
+
+.input-group button:hover {
+  background-color: #d49a7b;
+}
+
+/* Right Section */
+.right-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.right-section img {
+  max-width: 300px;
+  height: auto;
+}
+.brand {
+  font-family: 'Dancing Script', cursive;
+  font-size: 38px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  color: black /* matches your theme */
+}
+.input-group-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input-group-vertical input {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.input-group-vertical button {
+  background: #d49a7b;
+  border: none;
+  padding: 12px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s ease;
+}
+
+.input-group-vertical button:hover {
+  background: #c2886c;
+}
+
+>>>>>>> cbc68db9c36592502ab693ad6457532174df725f
