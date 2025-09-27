@@ -119,12 +119,10 @@
         if (!res.ok) throw new Error("Failed to fetch profile");
         const user = await res.json();
 
-        // display
         userName.textContent = user.username || "N/A";
         userEmail.textContent = user.email || "N/A";
         userPhone.textContent = user.phone || "Not Provided";
 
-        // populate input fields for editing
         editName.value = user.username || "";
         editEmail.value = user.email || "";
         editPhone.value = user.phone || "";
@@ -142,14 +140,12 @@
     let editing = false;
     editBtn.addEventListener("click", async () => {
       if (!editing) {
-        // show inputs for editing
         editName.style.display = "block";
         editEmail.style.display = "block";
         editPhone.style.display = "block";
         editBtn.textContent = "Save Changes";
         editing = true;
       } else {
-        // save changes
         const updatedUser = {
           username: editName.value.trim(),
           email: editEmail.value.trim(),
