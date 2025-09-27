@@ -4,6 +4,7 @@ const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
+const upiRouter = require("./routes/upi");
 
 const app = express();
 
@@ -122,6 +123,11 @@ app.get("/users", authMiddleware, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// ==========================
+// 🔹 UPI Routes
+// ==========================
+app.use("/api", upiRouter);
 
 // ==========================
 // 🔹 Start Server
