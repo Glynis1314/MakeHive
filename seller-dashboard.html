@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seller Dashboard - MakeHive</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { font-family: Arial, sans-serif; background: #f5f5f5; }
+  .container { max-width: 900px; margin: 50px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+  h2, h3 { text-align: center; margin-bottom: 20px; }
+  img.banner { width: 100%; max-height: 250px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+  .seller-info p { margin: 8px 0; }
+  .edit-btn { display: inline-block; margin-top: 15px; padding: 10px 20px; border-radius: 25px; background: linear-gradient(90deg,#ff6a00,#ff4081); color: white; font-weight: bold; cursor: pointer; text-decoration: none; }
+  .product-form input, .product-form textarea { width: 100%; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; }
+  .product-form button { width: 100%; padding: 12px; border: none; border-radius: 25px; background: linear-gradient(90deg,#ff6a00,#ff4081); color: white; font-weight: bold; cursor: pointer; }
+  .product-list { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 30px; }
+  .product-card { border: 1px solid #ddd; border-radius: 10px; padding: 10px; width: 200px; text-align: center; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+  .product-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; }
+  .add-cart { margin-top: 10px; padding: 8px 12px; border: none; border-radius: 20px; background: #ff4081; color: white; cursor: pointer; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Seller Dashboard</h2>
+  
+  <!-- Seller Info -->
+  <div id="businessInfo" class="seller-info"></div>
+
+  <!-- Product Upload Form -->
+  <div class="product-form">
+    <h3>Add New Product</h3>
+    <input type="text" id="productName" placeholder="Product Name">
+    <textarea id="productDesc" placeholder="Product Description"></textarea>
+    <input type="number" id="productPrice" placeholder="Price">
+    <input type="file" id="productImage" accept="image/*">
+    <button id="addProductBtn">Add Product</button>
+  </div>
+
+  <!-- Seller Products -->
+  <div class="product-list" id="sellerProducts"></div>
+</div>
+
+<script>
+const token = localStorage.getItem("token");
+const businessInfoDiv = document.getElementById("businessInfo");
+const productListDiv = document.getElementById("sellerProducts");
+const addProductBtn = document.getElementById("addProductBtn");
+
+// Load Seller Info
+let sellerData = JSON.parse(localStorage.getItem("sellerInfo")) || {};
+if (!token) {
+  alert("⚠️ You must log in first!");
+  window.location.href = "login.html";
+} else {
+  fetch("http://localhost:5000/seller", { headers: { "Authorization": "Bearer " + token } })
+    .then(res => res.json())
+    .then(data => {
+      if (!data || data.error) {
+        if (!sellerData.businessName) {
+          businessInfoDiv.innerHTML = `<p style="color:red;">No seller info found. <a href="become-seller.html">Apply here</a></p>`;
+          return;
+        }
+        businessInfoDiv.innerHTML = `
+          <img class="banner" src="${sellerData.bannerPic || 'images/default-banner.jpg'}" alt="Banner">
+          <p><strong>Business Name:</strong> ${sellerData.businessName}</p>
+          <p><strong>Description:</strong> ${sellerData.description}</p>
+          <p><strong>GST Number:</strong> ${sellerData.gstNumber || '-'}</p>
+          <p><strong>Payment Details:</strong> ${sellerData.paymentDetails || '-'}</p>
+          <p><strong>Verification Status:</strong> Pending ⏳</p>
+          <a class="edit-btn" href="become-seller.html">Edit Info</a>
+        `;
+      } else {
+        businessInfoDiv.innerHTML = `
+          <img class="banner" src="${data.bannerPicUrl || 'images/default-banner.jpg'}" alt="Banner">
+          <p><strong>Business Name:</strong> ${data.businessName}</p>
+          <p><strong>Description:</strong> ${data.description}</p>
+          <p><strong>GST Number:</strong> ${data.gstNumber || '-'}</p>
+          <p><strong>Payment Details:</strong> ${JSON.stringify(data.paymentDetails)}</p>
+          <p><strong>Verification Status:</strong> ${data.isVerified ? "Verified ✅" : "Pending ⏳"}</p>
+          <a class="edit-btn" href="become-seller.html">Edit Info</a>
+        `;
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      if (!sellerData.businessName) {
+        businessInfoDiv.innerHTML = `<p style="color:red;">⚠️ Network error and no seller info found. <a href="become-seller.html">Apply here</a></p>`;
+        return;
+      }
+      businessInfoDiv.innerHTML = `
+        <img class="banner" src="${sellerData.bannerPic || 'images/default-banner.jpg'}" alt="Banner">
+        <p><strong>Business Name:</strong> ${sellerData.businessName}</p>
+        <p><strong>Description:</strong> ${sellerData.description}</p>
+        <p><strong>GST Number:</strong> ${sellerData.gstNumber || '-'}</p>
+        <p><strong>Payment Details:</strong> ${sellerData.paymentDetails || '-'}</p>
+        <p><strong>Verification Status:</strong> Pending ⏳</p>
+        <a class="edit-btn" href="become-seller.html">Edit Info</a>
+      `;
+    });
+}
+
+// Load products
+let products = JSON.parse(localStorage.getItem("products")) || [];
+function renderProducts() {
+  productListDiv.innerHTML = '';
+  products.forEach((p, i) => {
+    productListDiv.innerHTML += `
+      <div class="product-card">
+        <img src="${p.image || 'images/default-banner.jpg'}" alt="${p.name}">
+        <p><strong>${p.name}</strong></p>
+        <p>${p.desc}</p>
+        <p>₹${p.price}</p>
+        <button class="add-cart" data-index="${i}">Add to Cart</button>
+      </div>
+    `;
+  });
+}
+renderProducts();
+
+// Add Product
+addProductBtn.addEventListener("click", () => {
+  const name = document.getElementById("productName").value.trim();
+  const desc = document.getElementById("productDesc").value.trim();
+  const price = document.getElementById("productPrice").value;
+  const imageFile = document.getElementById("productImage").files[0];
+
+  if (!name || !price) return alert("Please enter product name and price");
+
+  const reader = new FileReader();
+  reader.onload = function() {
+    const imgData = reader.result;
+    const product = { name, desc, price, image: imgData, seller: sellerData.businessName || "Unknown" };
+    products.push(product);
+    localStorage.setItem("products", JSON.stringify(products));
+    renderProducts();
+    document.getElementById("productName").value = '';
+    document.getElementById("productDesc").value = '';
+    document.getElementById("productPrice").value = '';
+    document.getElementById("productImage").value = '';
+  };
+  if (imageFile) reader.readAsDataURL(imageFile);
+  else reader.onload();
+});
+
+// Add to Cart
+productListDiv.addEventListener("click", (e) => {
+  if (e.target.classList.contains("add-cart")) {
+    const index = e.target.dataset.index;
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    cart.push(products[index]);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("✅ Product added to cart");
+  }
+});
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Become a Seller - MakeHive</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .seller-container {
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 20px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    .seller-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .seller-container input, 
+    .seller-container textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    .seller-container button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(90deg, #ff6a00, #ff4081);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    #sellerMessage {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="seller-container">
+    <h2>Become a Seller</h2>
+    <form id="sellerForm">
+      <input type="text" id="businessName" placeholder="Business Name" required>
+      <textarea id="description" placeholder="Business Description" rows="3"></textarea>
+      <input type="text" id="gstNumber" placeholder="GST Number">
+      <textarea id="paymentDetails" placeholder='Payment Details (JSON format)' rows="2"></textarea>
+      <input type="file" id="bannerPic" accept="image/*">
+      <button type="submit">Submit Application</button>
+    </form>
+    <div id="sellerMessage"></div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const sellerForm = document.getElementById("sellerForm");
+    const sellerMessage = document.getElementById("sellerMessage");
+
+    if (!token) {
+      alert("⚠️ You must log in first!");
+      window.location.href = "login.html";
+    }
+
+    sellerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData();
+      formData.append("businessName", document.getElementById("businessName").value);
+      formData.append("description", document.getElementById("description").value);
+      formData.append("gstNumber", document.getElementById("gstNumber").value);
+      formData.append("paymentDetails", document.getElementById("paymentDetails").value);
+      const fileInput = document.getElementById("bannerPic");
+      if (fileInput.files[0]) formData.append("bannerPic", fileInput.files[0]);
+
+      try {
+        const res = await fetch("http://localhost:5000/seller", {
+          method: "POST",
+          headers: { "Authorization": "Bearer " + token },
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+          sellerMessage.style.color = "green";
+          sellerMessage.textContent = "✅ Application submitted! Await verification.";
+        } else {
+          sellerMessage.style.color = "red";
+          sellerMessage.textContent = data.error || "❌ Submission failed.";
+        }
+      } catch (err) {
+        console.error(err);
+        sellerMessage.style.color = "red";
+        sellerMessage.textContent = "⚠️ Network error.";
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -25,26 +25,26 @@
   <!-- Cart Section -->
   <section class="recommendations">
     <h2>Your Cart</h2>
-    <div class="scroll-container" style="flex-direction:column;overflow-x:hidden;">
+    <div class="scroll-container" id="cart-items" style="flex-direction:column;overflow-x:hidden;">
       <div class="product" style="display:flex;align-items:center;gap:20px;">
         <img src="images/handvase.jpg" alt="Handmade Vase" style="width:100px;">
         <div>
           <p>Handmade Vase</p>
-          <span>₹499</span>
+          <span class="price">499</span>
         </div>
-        <button class="signin-btn" style="margin-left:auto;">Remove</button>
+        <button class="signin-btn remove-btn" style="margin-left:auto;">Remove</button>
       </div>
       <div class="product" style="display:flex;align-items:center;gap:20px;">
         <img src="images/crochet.jpg" alt="Crochet Bag" style="width:100px;">
         <div>
           <p>Crochet Bag</p>
-          <span>₹799</span>
+          <span class="price">799</span>
         </div>
-        <button class="signin-btn" style="margin-left:auto;">Remove</button>
+        <button class="signin-btn remove-btn" style="margin-left:auto;">Remove</button>
       </div>
     </div>
     <div style="text-align:right;margin-top:20px;">
-      <p><strong>Total:</strong> ₹1,298</p>
+      <p><strong>Total:</strong> ₹<span id="total">1298</span></p>
       <a href="payment.html"><button class="signin-btn">Proceed to Checkout</button></a>
     </div>
   </section>
@@ -52,5 +52,25 @@
   <footer>
     <p>© 2025 MakeHive. All rights reserved.</p>
   </footer>
+
+  <!-- JavaScript -->
+  <script>
+    function updateTotal() {
+      let total = 0;
+      document.querySelectorAll(".price").forEach(price => {
+        total += parseInt(price.textContent);
+      });
+      document.getElementById("total").textContent = total;
+    }
+
+    document.querySelectorAll(".remove-btn").forEach(button => {
+      button.addEventListener("click", function() {
+        this.parentElement.remove();
+        updateTotal();
+      });
+    });
+
+    updateTotal();
+  </script>
 </body>
 </html>

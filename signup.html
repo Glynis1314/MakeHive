@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -109,6 +108,19 @@
       margin-top: 8px;
       font-size: 14px;
     }
+    .login-link {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 14px;
+    }
+    .login-link a {
+      color: #8c3d0c;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .login-link a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -125,16 +137,18 @@
       <form id="signupForm">
         <input type="text" id="username" placeholder="Full Name" required>
         <input type="email" id="email" placeholder="Email" required>
-
         <input type="password" id="password" placeholder="Password" required>
         <div id="passwordStrength"></div>
-
         <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
         <div id="confirmMessage"></div>
-
         <button type="submit">Sign Up</button>
         <div id="formMessage"></div>
       </form>
+
+      <!-- Already have an account link -->
+      <div class="login-link">
+        Already have an account? <a href="login.html">Log in</a>
+      </div>
     </div>
   </div>
 

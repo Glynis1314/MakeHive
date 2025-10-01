@@ -17,7 +17,6 @@
       position: relative;
       background: url("images/banner.png") no-repeat center center/cover;
     }
-
     body::before {
       content: "";
       position: absolute;
@@ -28,7 +27,6 @@
       background: rgba(244, 217, 208, 0.6);
       z-index: 0;
     }
-
     .login-container {
       width: 100%;
       max-width: 400px;
@@ -42,19 +40,16 @@
       position: relative;
       z-index: 1;
     }
-
     .brand {
       font-family: 'Dancing Script', cursive;
       font-size: 48px;
       margin-bottom: 10px;
       color: #8c3d0c;
     }
-
     h2 {
       margin-bottom: 20px;
       color: #333;
     }
-
     form input {
       width: 100%;
       padding: 12px;
@@ -64,7 +59,6 @@
       outline: none;
       font-size: 14px;
     }
-
     form button {
       width: 100%;
       padding: 12px;
@@ -76,31 +70,26 @@
       cursor: pointer;
       margin-top: 10px;
     }
-
     #loginMessage {
       margin-top: 10px;
       font-size: 14px;
     }
-
     .links {
       margin-top: 15px;
       font-size: 14px;
       color: #333;
     }
-
     .links a {
       color: #ff6a00;
       text-decoration: none;
       font-weight: bold;
     }
-
     .links a:hover {
       text-decoration: underline;
     }
   </style>
 </head>
 <body>
-
   <div class="login-container">
     <h1 class="brand">MakeHive</h1>
     <h2>Login</h2>
@@ -139,25 +128,34 @@
           body: JSON.stringify({ email, password })
         });
 
-        const raw = await res.text();
-        let data = {};
-        try {
-          data = raw ? JSON.parse(raw) : {};
-        } catch {
-          data.msg = raw || "Server did not return JSON";
-        }
+        const data = await res.json();
 
         if (res.ok && data.token) {
-          // ✅ Store JWT token in localStorage
+          // ✅ Store JWT token
           localStorage.setItem("token", data.token);
-
           showMessage("✅ Login successful! Redirecting...", "success");
-          // Redirect to profile page
-          setTimeout(() => window.location.href = "profile.html", 1200);
-        } else {
-          showMessage("❌ " + (data.error || data.msg || "Login failed"));
-        }
 
+          // ✅ Check if user is a verified seller
+          const sellerRes = await fetch("http://localhost:5000/seller", {
+            headers: { Authorization: `Bearer ${data.token}` },
+          });
+
+          if (sellerRes.ok) {
+            const sellerData = await sellerRes.json();
+            setTimeout(() => {
+              if (sellerData.isVerified) {
+                window.location.href = "seller-dashboard.html";
+              } else {
+                window.location.href = "become-seller.html";
+              }
+            }, 1200);
+          } else {
+            // Not a seller yet
+            setTimeout(() => window.location.href = "become-seller.html", 1200);
+          }
+        } else {
+          showMessage("❌ " + (data.error || "Login failed"));
+        }
       } catch (err) {
         console.error("Login error:", err);
         showMessage("⚠️ Network error or server not reachable.");

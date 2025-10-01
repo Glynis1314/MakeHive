@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Become a Seller - MakeHive</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; }
+    .container {
+      max-width: 500px;
+      margin: 50px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    h2 { text-align: center; margin-bottom: 20px; }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(90deg,#ff6a00,#ff4081);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Become a Seller</h2>
+    <form id="sellerForm">
+      <input type="text" id="businessName" placeholder="Business Name">
+      <textarea id="description" placeholder="Business Description"></textarea>
+      <input type="text" id="gstNumber" placeholder="GST Number">
+      <input type="text" id="paymentDetails" placeholder='Payment Details e.g. {"upi":"abc@upi"}'>
+      <input type="file" id="bannerPic" accept="image/*">
+      <button type="submit">Submit Application</button>
+    </form>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const form = document.getElementById("sellerForm");
+
+    if (!token) {
+      alert("⚠️ You must log in first!");
+      window.location.href = "login.html";
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      // Collect seller info
+      const sellerData = {
+        businessName: document.getElementById("businessName").value,
+        description: document.getElementById("description").value,
+        gstNumber: document.getElementById("gstNumber").value,
+        paymentDetails: document.getElementById("paymentDetails").value
+      };
+
+      // Optionally, store banner pic filename (for display)
+      const fileInput = document.getElementById("bannerPic");
+      if (fileInput.files[0]) {
+        sellerData.bannerPic = fileInput.files[0].name;
+      }
+
+      // Save to localStorage
+      localStorage.setItem("sellerInfo", JSON.stringify(sellerData));
+
+      // Redirect to seller dashboard
+      window.location.href = "seller-dashboard.html";
+    });
+  </script>
+</body>
+</html>
