@@ -4,9 +4,76 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MakeHive - Home</title>
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Hover effects */
+    .categories .circle, .recommendations .product, #businessList .product {
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .categories .circle:hover, .recommendations .product:hover, #businessList .product:hover {
+      transform: scale(1.05);
+    }
+
+    #businessList .product img {
+      display: block;
+      margin: auto;
+    }
+
+    #businessList .product button {
+      margin-top: 5px;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 15px;
+      background: #ff4081;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #businessList .product button:hover {
+      background: #e73370;
+    }
+
+    #businessList .product .seller {
+      font-size: 0.85em;
+      color: #555;
+    }
+
+    /* Dark Mode Styles */
+    body.dark-mode {
+      background-color: #121212;
+      color: #f5f5f5;
+      transition: background 0.3s, color 0.3s;
+    }
+    header.dark-mode, footer.dark-mode {
+      background-color: #1e1e1e;
+    }
+    .hero.dark-mode, .categories.dark-mode, .recommendations.dark-mode, .signin-section.dark-mode {
+      background-color: #1a1a1a;
+      color: #f5f5f5;
+    }
+    .product.dark-mode {
+      background-color: #1e1e1e;
+      color: #f5f5f5;
+      border-color: #444;
+    }
+    .circle.dark-mode img {
+      background-color: #2a2a2a;
+    }
+    nav a.dark-mode {
+      color: #f5f5f5;
+    }
+    .search-bar input.dark-mode {
+      background-color: #2a2a2a;
+      color: #f5f5f5;
+      border: 1px solid #555;
+    }
+    .search-bar button.dark-mode {
+      background-color: #444;
+      color: #fff;
+    }
+  </style>
 </head>
 <body>
   <!-- Navbar -->
@@ -17,11 +84,13 @@
       <button id="searchBtn">🔍</button>
     </div>
     <nav>
-      <a href="#">About Us</a>
+      <a href="about.html">About Us</a>
       <a href="cart.html">Cart 🛒</a>
       <a href="profile.html">Profile 👤</a>
       <a href="#" class="seller-btn">Become a Seller</a>
     </nav>
+    <!-- Dark Mode Toggle -->
+    <button id="darkModeToggle" style="margin-left: 20px;">🌙 Dark Mode</button>
   </header>
 
   <!-- Hero Section -->
@@ -55,48 +124,48 @@
     <h2>Recommended for You</h2>
     <div class="scroll-container">
       <div class="product">
-        <img src="images/handvase.jpg" alt="product1">
+        <img src="images/handvase.jpg" alt="Handmade Vase">
         <p>Handmade Vase</p>
-        <span>₹499</span>
+        <span>499</span>
       </div>
       <div class="product">
-        <img src="images/crochet.jpg" alt="product2">
-        <p>crochet bag</p>
-        <span>₹799</span>
+        <img src="images/crochet.jpg" alt="Crochet Bag">
+        <p>Crochet Bag</p>
+        <span>799</span>
       </div>
       <div class="product">
-        <img src="images/scarf.jpg" alt="product3">
-        <p>handloom scarf</p>
-        <span>₹1,299</span>
+        <img src="images/scarf.jpg" alt="Handloom Scarf">
+        <p>Handloom Scarf</p>
+        <span>1299</span>
       </div>
       <div class="product">
-        <img src="images/pottery.jpg" alt="product4">
-        <p>clay pottery</p>
-        <span>₹349</span>
+        <img src="images/pottery.jpg" alt="Clay Pottery">
+        <p>Clay Pottery</p>
+        <span>349</span>
       </div>
       <div class="product">
-        <img src="images/rakhis.jpg" alt="product5">
-        <p>Hand painted rakhi</p>
-        <span>₹599</span>
+        <img src="images/rakhis.jpg" alt="Hand Painted Rakhi">
+        <p>Hand Painted Rakhi</p>
+        <span>599</span>
       </div>
       <div class="product">
-        <img src="images/DIY.jpg" alt="product6">
-        <p>DIY cards</p>
-        <span>₹899</span>
+        <img src="images/DIY.jpg" alt="DIY Cards">
+        <p>DIY Cards</p>
+        <span>899</span>
       </div>
     </div>
   </section>
 
   <!-- Search Results -->
   <section id="results" class="results-section" style="display:none;">
-    <h2>Businesses Found</h2>
+    <h2>Products Found</h2>
     <div id="businessList"></div>
   </section>
 
-  <!-- Personalized Sign In -->
+  <!-- Personalized Sign In / Logout -->
   <section class="signin-section">
     <p>For personalized recommendations – Sign in</p>
-    <button class="signin-btn" onclick="location.href='login.html'">Sign In</button>
+    <button id="authBtn"></button>
   </section>
 
   <!-- Footer -->
@@ -104,7 +173,158 @@
     <p>© 2025 MakeHive. All rights reserved.</p>
   </footer>
 
-  <!-- JavaScript file -->
-  <script src="script.js"></script>
+  <script>
+    const authBtn = document.getElementById("authBtn");
+    const sellerBtn = document.querySelector(".seller-btn");
+    const token = localStorage.getItem("token");
+    const resultsSection = document.getElementById("results");
+    const businessList = document.getElementById("businessList");
+
+    // ----------------------------
+    // Dark Mode Toggle
+    // ----------------------------
+    const darkModeToggle = document.getElementById("darkModeToggle");
+    function applyDarkMode(enable) {
+      document.body.classList.toggle("dark-mode", enable);
+      document.querySelector("header").classList.toggle("dark-mode", enable);
+      document.querySelector("footer").classList.toggle("dark-mode", enable);
+      document.querySelector(".hero").classList.toggle("dark-mode", enable);
+      document.querySelector(".categories").classList.toggle("dark-mode", enable);
+      document.querySelector(".recommendations").classList.toggle("dark-mode", enable);
+      document.querySelector(".signin-section").classList.toggle("dark-mode", enable);
+      document.querySelectorAll(".product").forEach(p => p.classList.toggle("dark-mode", enable));
+      document.querySelectorAll(".circle").forEach(c => c.classList.toggle("dark-mode", enable));
+      document.querySelectorAll("nav a").forEach(a => a.classList.toggle("dark-mode", enable));
+      document.querySelectorAll(".search-bar input").forEach(i => i.classList.toggle("dark-mode", enable));
+      document.querySelectorAll(".search-bar button").forEach(b => b.classList.toggle("dark-mode", enable));
+    }
+
+    darkModeToggle.addEventListener("click", () => {
+      const isDark = !document.body.classList.contains("dark-mode");
+      applyDarkMode(isDark);
+      localStorage.setItem("darkMode", isDark);
+    });
+
+    // Load dark mode preference
+    if (localStorage.getItem("darkMode") === "true") applyDarkMode(true);
+
+    // ----------------------------
+    // Auth Button
+    // ----------------------------
+    function updateAuthButton() {
+      if (token) {
+        authBtn.textContent = "Logout";
+        authBtn.onclick = () => {
+          localStorage.removeItem("token");
+          alert("Logged out successfully!");
+          window.location.reload();
+        };
+      } else {
+        authBtn.textContent = "Sign In";
+        authBtn.onclick = () => { window.location.href = "signup.html"; };
+      }
+    }
+    updateAuthButton();
+
+    // Become a Seller
+    sellerBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (token) window.location.href = "become-seller.html";
+      else {
+        alert("Please sign in first to become a seller!");
+        window.location.href = "signup.html";
+      }
+    });
+
+    // Show results function
+    function showResults(title, products) {
+      resultsSection.style.display = "block";
+      resultsSection.querySelector("h2").textContent = title;
+      businessList.innerHTML = "";
+      const isDark = document.body.classList.contains("dark-mode");
+      products.forEach(p => {
+        businessList.innerHTML += `
+          <div class="product ${isDark ? "dark-mode" : ""}" style="border:1px solid #ddd;padding:10px;margin:10px;display:inline-block;">
+            <img src="${p.image || p.img}" alt="${p.title || p.name}" style="width:120px;height:120px;object-fit:cover;">
+            <p>${p.title || p.name}</p>
+            ${p.seller ? `<p class="seller">Seller: ${p.seller}</p>` : ''}
+            <span>₹${p.price}</span>
+            <button onclick="addToCart('${p.title || p.name}', '${p.seller || ''}')">Add to Cart</button>
+          </div>
+        `;
+      });
+      resultsSection.scrollIntoView({ behavior: "smooth" });
+    }
+
+    // Add to Cart
+    function addToCart(productName, sellerName) {
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const allProducts = JSON.parse(localStorage.getItem("products")) || [];
+      const product = allProducts.find(p => p.title === productName || p.name === productName);
+      if (product) {
+        cart.push(product);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        alert("✅ Product added to cart");
+      }
+    }
+
+    // Categories click
+    const categories = {
+      "Top Offers": [
+        { name: "Discounted Vase", price: 299, img: "images/handvase.jpg" },
+        { name: "Festive Rakhi Pack", price: 199, img: "images/rakhis.jpg" }
+      ],
+      "Bestsellers": [
+        { name: "Crochet Bag", price: 799, img: "images/crochet.jpg" },
+        { name: "Handloom Scarf", price: 1299, img: "images/scarf.jpg" }
+      ],
+      "Handicrafts": [
+        { name: "Clay Pottery", price: 349, img: "images/pottery.jpg" },
+        { name: "DIY Handmade Card", price: 899, img: "images/DIY.jpg" }
+      ],
+      "Fashion": [
+        { name: "Ethnic Handbag", price: 1099, img: "images/crochet.jpg" },
+        { name: "Traditional Scarf", price: 1299, img: "images/scarf.jpg" }
+      ]
+    };
+
+    document.querySelectorAll(".categories .circle").forEach(circle => {
+      circle.addEventListener("click", () => {
+        const cat = circle.querySelector("p").textContent;
+        if (categories[cat]) showResults(cat, categories[cat]);
+      });
+    });
+
+    // Recommended products click
+    document.querySelectorAll(".recommendations .product").forEach(product => {
+      product.addEventListener("click", () => {
+        const name = product.querySelector("p").textContent;
+        const price = product.querySelector("span").textContent.replace("₹","");
+        const img = product.querySelector("img").src;
+        showResults("You clicked: " + name, [{ name, price, img }]);
+      });
+    });
+
+    // Search Button Event - local Fake Store API
+    const searchBtn = document.getElementById("searchBtn");
+    searchBtn.addEventListener("click", async () => {
+      const query = document.getElementById("searchInput").value.trim();
+      if (!query) return;
+
+      try {
+        const response = await fetch(`http://localhost:5000/products/fake?q=${encodeURIComponent(query)}`);
+        const products = await response.json();
+
+        if (products.length > 0) {
+          showResults(`Search results for "${query}"`, products);
+        } else {
+          showResults(`Search results for "${query}"`, [{ name: "No results found", price: "-", img: "images/default-banner.jpg" }]);
+        }
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        showResults(`Search results for "${query}"`, [{ name: "Error fetching products", price: "-", img: "images/default-banner.jpg" }]);
+      }
+    });
+  </script>
 </body>
 </html>

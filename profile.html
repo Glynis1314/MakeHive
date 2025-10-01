@@ -19,8 +19,12 @@
     }
     .profile-box img {
       width: 100px;
+      height: 100px;
       border-radius: 50%;
       margin-bottom: 10px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid #fff;
     }
     .profile-box p {
       margin: 8px 0;
@@ -50,6 +54,45 @@
       margin-top: 10px;
       font-size: 14px;
     }
+    #profilePicInput {
+      display: none;
+    }
+    /* Orders Section */
+    .orders-section {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    .orders-section h2 {
+      margin-bottom: 15px;
+    }
+    .order {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+    }
+    .order img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      margin-right: 10px;
+      border-radius: 5px;
+    }
+    .order-items div {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+    .reorder-btn {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background: #ff4081;
+      color: white;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -72,7 +115,8 @@
   <section class="recommendations">
     <h2>Your Profile</h2>
     <div class="profile-box" id="profileBox">
-      <img src="https://img.icons8.com/ios-filled/100/8B4513/user.png" alt="Profile">
+      <img src="https://img.icons8.com/ios-filled/100/8B4513/user.png" alt="Profile" id="profilePic">
+      <input type="file" id="profilePicInput" accept="image/*">
       <p><strong>Name:</strong> <span id="userName">Loading...</span></p>
       <input type="text" id="editName">
       <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
@@ -82,6 +126,12 @@
       <button id="editBtn">Edit Profile</button>
       <div id="profileMessage"></div>
     </div>
+  </section>
+
+  <!-- Orders Section -->
+  <section class="orders-section" id="ordersSection">
+    <h2>Your Orders</h2>
+    <div id="ordersList">Loading orders...</div>
   </section>
 
   <!-- Footer -->
@@ -94,12 +144,14 @@
     const userName = document.getElementById("userName");
     const userEmail = document.getElementById("userEmail");
     const userPhone = document.getElementById("userPhone");
-
     const editName = document.getElementById("editName");
     const editEmail = document.getElementById("editEmail");
     const editPhone = document.getElementById("editPhone");
     const editBtn = document.getElementById("editBtn");
     const profileMessage = document.getElementById("profileMessage");
+    const profilePic = document.getElementById("profilePic");
+    const profilePicInput = document.getElementById("profilePicInput");
+    const ordersList = document.getElementById("ordersList");
 
     function showMessage(msg, type="error") {
       profileMessage.textContent = msg;
@@ -127,6 +179,7 @@
         editEmail.value = user.email || "";
         editPhone.value = user.phone || "";
 
+        if (user.profilePicUrl) profilePic.src = `http://localhost:5000${user.profilePicUrl}`;
       } catch (err) {
         console.error("Profile fetch error:", err);
         alert("⚠️ Could not load profile. Please log in again.");
@@ -138,6 +191,14 @@
     loadProfile();
 
     let editing = false;
+
+    profilePic.addEventListener("click", () => profilePicInput.click());
+
+    profilePicInput.addEventListener("change", () => {
+      const file = profilePicInput.files[0];
+      if (file) profilePic.src = URL.createObjectURL(file);
+    });
+
     editBtn.addEventListener("click", async () => {
       if (!editing) {
         editName.style.display = "block";
@@ -146,34 +207,32 @@
         editBtn.textContent = "Save Changes";
         editing = true;
       } else {
-        const updatedUser = {
-          username: editName.value.trim(),
-          email: editEmail.value.trim(),
-          phone: editPhone.value.trim()
-        };
+        const formData = new FormData();
+        formData.append("username", editName.value.trim());
+        formData.append("email", editEmail.value.trim());
+        formData.append("phone", editPhone.value.trim());
+        if (profilePicInput.files[0]) formData.append("profilePic", profilePicInput.files[0]);
 
         try {
           const res = await fetch("http://localhost:5000/profile", {
             method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": "Bearer " + token
-            },
-            body: JSON.stringify(updatedUser)
+            headers: { "Authorization": "Bearer " + token },
+            body: formData
           });
-
           const data = await res.json();
           if (res.ok) {
             showMessage("✅ Profile updated successfully!", "success");
-            userName.textContent = updatedUser.username;
-            userEmail.textContent = updatedUser.email;
-            userPhone.textContent = updatedUser.phone || "Not Provided";
+            userName.textContent = editName.value.trim();
+            userEmail.textContent = editEmail.value.trim();
+            userPhone.textContent = editPhone.value.trim() || "Not Provided";
 
             editName.style.display = "none";
             editEmail.style.display = "none";
             editPhone.style.display = "none";
             editBtn.textContent = "Edit Profile";
             editing = false;
+
+            if (data.profilePicUrl) profilePic.src = `http://localhost:5000${data.profilePicUrl}`;
           } else {
             showMessage("❌ " + (data.error || "Update failed"));
           }
@@ -183,6 +242,67 @@
         }
       }
     });
+
+    // =====================
+    // Load Orders
+    // =====================
+    async function loadOrders() {
+      try {
+        const res = await fetch("http://localhost:5000/orders", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        const orders = await res.json();
+        if (!orders.length) {
+          ordersList.innerHTML = "<p>You have no orders yet.</p>";
+          return;
+        }
+
+        ordersList.innerHTML = "";
+        orders.forEach(order => {
+          const orderEl = document.createElement("div");
+          orderEl.className = "order";
+          orderEl.innerHTML = `
+            <h3>Order #${order._id}</h3>
+            <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+            <p><strong>Total:</strong> ₹${order.total}</p>
+            <div class="order-items">
+              ${order.items.map(item => `
+                <div>
+                  <img src="${item.imageUrl}" alt="${item.name}">
+                  <div>
+                    <p>${item.name}</p>
+                    <p>₹${item.price}</p>
+                    <p>Qty: ${item.quantity}</p>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+            <button class="reorder-btn" data-order-id="${order._id}">Reorder</button>
+          `;
+          ordersList.appendChild(orderEl);
+        });
+
+        // Reorder functionality
+        document.querySelectorAll(".reorder-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const orderId = btn.getAttribute("data-order-id");
+            const order = orders.find(o => o._id === orderId);
+            if (!order) return alert("Order not found");
+
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            order.items.forEach(item => cart.push(item));
+            localStorage.setItem("cart", JSON.stringify(cart));
+            alert("✅ Items from this order added to cart!");
+          });
+        });
+
+      } catch (err) {
+        console.error("Load orders error:", err);
+        ordersList.innerHTML = "<p>Could not load orders. Please try again later.</p>";
+      }
+    }
+
+    loadOrders();
   </script>
 </body>
 </html>

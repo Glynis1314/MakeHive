@@ -1,5 +1,5 @@
 /* General Styling */
-{
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -10,6 +10,13 @@ body {
   background-color: #fdfcfb; /* pastel beige */
   color: #333;
   line-height: 1.6;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Dark Mode */
+body.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
 }
 
 /* Navbar */
@@ -23,13 +30,24 @@ header {
   position: sticky;
   top: 0;
   z-index: 10;
+  transition: background 0.3s, color 0.3s;
 }
 
-.logo {
-  font-family: "Dancing Script", cursive;
-  font-size: 30px;
-  font-weight: 600;
-  color: #222;
+header.dark-mode {
+  background-color: #1f1f1f;
+  color: #e0e0e0;
+}
+
+nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: #444;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+nav a.dark-mode {
+  color: #e0e0e0;
 }
 
 .search-bar {
@@ -45,6 +63,13 @@ header {
   border: 1px solid #ddd;
   border-radius: 25px 0 0 25px;
   outline: none;
+  transition: background 0.3s, color 0.3s, border 0.3s;
+}
+
+.search-bar input.dark-mode {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #555;
 }
 
 .search-bar button {
@@ -53,13 +78,12 @@ header {
   background: #f4d9d0;
   border-radius: 0 25px 25px 0;
   cursor: pointer;
+  transition: background 0.3s, color 0.3s;
 }
 
-nav a {
-  margin-left: 20px;
-  text-decoration: none;
-  color: #444;
-  font-weight: 500;
+.search-bar button.dark-mode {
+  background-color: #444;
+  color: #fff;
 }
 
 .seller-btn {
@@ -67,6 +91,11 @@ nav a {
   padding: 6px 12px;
   border-radius: 20px;
   color: white;
+  transition: background 0.3s;
+}
+
+.seller-btn.dark-mode {
+  background-color: #d49a7b;
 }
 
 /* Hero Section */
@@ -74,17 +103,12 @@ nav a {
   text-align: center;
   padding: 80px 20px;
   background: #faf7f5;
+  transition: background 0.3s, color 0.3s;
 }
 
-.hero h1 {
-  font-size: 32px;
-  margin-bottom: 15px;
-  color: #333;
-}
-
-.hero p {
-  font-size: 18px;
-  color: #666;
+.hero.dark-mode {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
 }
 
 /* Category Circles */
@@ -95,6 +119,11 @@ nav a {
   padding: 30px;
   text-align: center;
   background: #fff;
+  transition: background 0.3s;
+}
+
+.categories.dark-mode {
+  background-color: #1a1a1a;
 }
 
 .circle {
@@ -111,18 +140,33 @@ nav a {
   height: 100px;
   object-fit: contain;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: background 0.3s;
+}
+
+.circle.dark-mode img {
+  background-color: #2a2a2a;
 }
 
 .circle p {
   margin-top: 10px;
   font-weight: 500;
   color: #444;
+  transition: color 0.3s;
+}
+
+.circle.dark-mode p {
+  color: #e0e0e0;
 }
 
 /* Recommendations Section */
 .recommendations {
   padding: 40px 20px;
   background: #fff;
+  transition: background 0.3s;
+}
+
+.recommendations.dark-mode {
+  background-color: #1a1a1a;
 }
 
 .recommendations h2 {
@@ -148,6 +192,10 @@ nav a {
   border-radius: 10px;
 }
 
+.scroll-container.dark-mode::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
 .product {
   min-width: 180px;
   background: #faf7f5;
@@ -155,7 +203,7 @@ nav a {
   padding: 15px;
   text-align: center;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  transition: transform 0.3s;
+  transition: transform 0.3s, background 0.3s, color 0.3s, border 0.3s;
 }
 
 .product:hover {
@@ -177,17 +225,23 @@ nav a {
   font-weight: bold;
 }
 
+.product.dark-mode {
+  background-color: #1e1e1e;
+  border: 1px solid #444;
+  color: #e0e0e0;
+}
+
 /* Sign In Section */
 .signin-section {
   text-align: center;
   padding: 40px 20px;
   background: #faf7f5;
+  transition: background 0.3s, color 0.3s;
 }
 
-.signin-section p {
-  font-size: 18px;
-  margin-bottom: 15px;
-  color: #444;
+.signin-section.dark-mode {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
 }
 
 .signin-btn {
@@ -212,4 +266,10 @@ footer {
   background: #fffaf6;
   font-size: 14px;
   color: #555;
+  transition: background 0.3s, color 0.3s;
+}
+
+footer.dark-mode {
+  background-color: #1f1f1f;
+  color: #ccc;
 }

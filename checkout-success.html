@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Success</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; }
+    h1 { color: green; }
+  </style>
+</head>
+<body>
+  <h1>✅ Payment Successful!</h1>
+  <p>Your order has been placed.</p>
+
+  <script>
+    // Simulated payment data returned from provider
+    const paymentData = {
+      transactionId: "txn_123456",
+      amount: 499,
+      status: "success",
+      productId: "PRODUCT_ID_HERE",
+      quantity: 1,
+    };
+
+    // Get token (stored when user logs in)
+    const token = localStorage.getItem("token");
+
+    // Call backend to create the order
+    fetch("http://localhost:5000/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(paymentData)
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log("✅ Order created:", data);
+      alert("Order created successfully!");
+    })
+    .catch(err => {
+      console.error("❌ Order creation failed:", err);
+      alert("Failed to create order.");
+    });
+  </script>
+</body>
+</html>
