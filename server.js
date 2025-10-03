@@ -1,41 +1,36 @@
 const express = require("express");
 const connectDB = require("./db");
-const User = require("./models/User");
-const Seller = require("./models/Seller");
-const Product = require("./models/Product");
-const Order = require("./models/Order");
+const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const cors = require("cors");
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
-const axios = require("axios");
 const nodemailer = require("nodemailer");
-const crypto = require("crypto");
-require("dotenv").config();
+const User = require("./models/User");
+const cartRouter = require("./routes/cart");
+const upiRouter = require("./routes/upi");
+const Product = require("./models/Product");
 
+// Initialize app
 const app = express();
 
-// Connect database
+// Connect to MongoDB
 connectDB();
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
+// JWT secret
+const JWT_SECRET = "supersecretkey";
 
 // ==========================
-// Auth Middleware
+// 🔹 Auth Middleware
 // ==========================
 const authMiddleware = (req, res, next) => {
   try {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
+    const token = req.headers["authorization"];
     if (!token) return res.status(401).json({ error: "No token provided" });
 
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token.replace("Bearer ", ""), JWT_SECRET);
     req.user = decoded;
     next();
   } catch (err) {
@@ -44,74 +39,39 @@ const authMiddleware = (req, res, next) => {
 };
 
 // ==========================
-// Multer Setups
+// 🔹 Routes
 // ==========================
-const createStorage = (folderName, prefix) =>
-  multer.diskStorage({
-    destination: (req, file, cb) => {
-      const dir = `./uploads/${folderName}`;
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-      cb(null, dir);
-    },
-    filename: (req, file, cb) => {
-      const ext = path.extname(file.originalname);
-      cb(null, `${prefix}_${req.user.id}_${Date.now()}${ext}`);
-    },
-  });
 
-const upload = multer({ storage: createStorage("", "profile") });
-const sellerUpload = multer({ storage: createStorage("sellers", "seller") });
-const productUpload = multer({ storage: createStorage("products", "product") });
-
-// ==========================
-// Test Route
-// ==========================
-app.get("/", (req, res) => {
-  res.send("🚀 Express + MongoDB + Auth + Fake Store API server is running!");
-});
-
-// ==========================
-// Fake Store API Routes
-// ==========================
-app.get("/products/fake", async (req, res) => {
-  const { q } = req.query;
+// Test
+app.get("/", (req, res) => res.send("🚀 Server running!"));
+app.get("/test-db", async (req, res) => {
   try {
-    const response = await axios.get("https://fakestoreapi.com/products");
-    let products = response.data;
-
-    if (q) {
-      products = products.filter(p =>
-        p.title.toLowerCase().includes(q.toLowerCase())
-      );
-    }
-
+    const products = await Product.find({});
     res.json(products);
   } catch (err) {
-    console.error("Fake Store API Error:", err.message);
-    res.status(500).json({ error: "Failed to fetch products", details: err.message });
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch products" });
   }
 });
 
-// ==========================
-// Auth Routes
-// ==========================
+// Signup
 app.post("/signup", async (req, res) => {
   try {
     const { username, email, password } = req.body;
     const existingUser = await User.findOne({ email });
-    if (existingUser)
-      return res.status(400).json({ error: "User already exists" });
+    if (existingUser) return res.status(400).json({ error: "User exists" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ username, email, password: hashedPassword });
     await user.save();
 
-    res.status(201).json({ msg: "✅ User registered successfully!" });
+    res.status(201).json({ msg: "✅ User registered!" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
+// Signin
 app.post("/signin", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -128,67 +88,111 @@ app.post("/signin", async (req, res) => {
   }
 });
 
-// ==========================
-// Password Reset Routes
-// ==========================
-app.post("/request-reset", async (req, res) => {
-  const { email } = req.body;
+// Protected profile
+app.get("/profile", authMiddleware, async (req, res) => {
   try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ msg: "User not found" });
-
-    const token = crypto.randomBytes(32).toString("hex");
-    user.resetToken = token;
-    user.resetTokenExpiry = Date.now() + 3600000; // 1 hour
-    await user.save();
-
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-    });
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: user.email,
-      subject: "Password Reset Request",
-      html: `<p>Click <a href="${process.env.FRONTEND_URL}?token=${token}">here</a> to reset your password.</p>`,
-    };
-
-    await transporter.sendMail(mailOptions);
-    res.json({ msg: "✅ Password reset email sent" });
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
+// ==========================
+// 🔹 Forgot Password
+// ==========================
+// ==========================
+// 🔹 Forgot Password Route
+// ==========================
+app.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: "Email required" });
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ error: "User not found" });
+
+    // Generate a 15-minute JWT token
+    const resetToken = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "15m" });
+
+    // Use the actual frontend URL where reset-password.html is served
+    const frontendURL = "http://127.0.0.1:5500/MakeHive"; // replace with your hosted URL when deployed
+    const resetLink = `${frontendURL}/reset-password.html?token=${resetToken}`;
+
+    // Nodemailer setup
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: { 
+        user: "glynisdarryldmello@gmail.com", 
+        pass: "fzftikfwqhxrygog" // use App Password if 2FA enabled
+      }
+    });
+
+    const mailOptions = {
+      from: '"MakeHive" <glynisdarryldmello@gmail.com>',
+      to: email,
+      subject: "Password Reset Request",
+      html: `<p>Hi ${user.username},</p>
+             <p>Click the link below to reset your password. This link will expire in 15 minutes:</p>
+             <a href="${resetLink}">${resetLink}</a>`
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.json({ msg: "✅ Reset link sent to your email!" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to send email" });
+  }
+});
+
+
+
+// Reset Password
 app.post("/reset-password", async (req, res) => {
   const { token, newPassword } = req.body;
-  try {
-    const user = await User.findOne({
-      resetToken: token,
-      resetTokenExpiry: { $gt: Date.now() },
-    });
-    if (!user) return res.status(400).json({ msg: "Invalid or expired token" });
+  if (!token || !newPassword) return res.status(400).json({ error: "Token and password required" });
 
-    user.password = await bcrypt.hash(newPassword, 10);
-    user.resetToken = undefined;
-    user.resetTokenExpiry = undefined;
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(400).json({ error: "User not found" });
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+    user.password = hashed;
     await user.save();
 
     res.json({ msg: "✅ Password reset successful!" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(err);
+    res.status(400).json({ error: "Invalid or expired token" });
+  }
+});
+
+// Search products
+app.get("/products", async (req, res) => {
+  try {
+    const query = req.query.q || "";
+    // Case-insensitive search for products by name
+    const products = await Product.find({
+      name: { $regex: query, $options: "i" }
+    }); // optional: populate seller info
+
+    res.json(products);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch products" });
   }
 });
 
 // ==========================
-// Profile, Seller, Product, Order routes
-// (Keep everything from first server.js)
+// 🔹 Cart & Payment
 // ==========================
-// ... [include all routes from the first server.js exactly here] ...
+app.use("/api/cart", authMiddleware, cartRouter);
+app.use("/api/upi", authMiddleware, upiRouter);
 
 // ==========================
-// Start Server
+// 🔹 Start server
 // ==========================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));

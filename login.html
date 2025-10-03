@@ -101,7 +101,7 @@
     </form>
 
     <div class="links">
-      <a href="password.html">Forgot password?</a>
+      <a href="forgot-password.html">Forgot password?</a>
       <p>Don’t have an account? <a href="signup.html">Sign up</a></p>
     </div>
   </div>
@@ -131,28 +131,13 @@
         const data = await res.json();
 
         if (res.ok && data.token) {
-          // ✅ Store JWT token
-          localStorage.setItem("token", data.token);
-          showMessage("✅ Login successful! Redirecting...", "success");
+          // ✅ Store JWT token in localStorage
+          localStorage.setItem("token", data.token); 
+          showMessage("✅ Login successful! Token saved.", "success");
 
-          // ✅ Check if user is a verified seller
-          const sellerRes = await fetch("http://localhost:5000/seller", {
-            headers: { Authorization: `Bearer ${data.token}` },
-          });
+          // Redirect user after successful login
+          setTimeout(() => window.location.href = "index.html", 1000);
 
-          if (sellerRes.ok) {
-            const sellerData = await sellerRes.json();
-            setTimeout(() => {
-              if (sellerData.isVerified) {
-                window.location.href = "seller-dashboard.html";
-              } else {
-                window.location.href = "become-seller.html";
-              }
-            }, 1200);
-          } else {
-            // Not a seller yet
-            setTimeout(() => window.location.href = "become-seller.html", 1200);
-          }
         } else {
           showMessage("❌ " + (data.error || "Login failed"));
         }

@@ -1,21 +1,25 @@
 const express = require("express");
 const connectDB = require("./db");
-const User = require("./models/User");
+const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const cors = require("cors");
+const User = require("./models/User");
+
+// Routes
+const cartRouter = require("./routes/cart");
 const upiRouter = require("./routes/upi");
 
+// Initialize app
 const app = express();
 
-// connect database
+// Connect to DB
 connectDB();
 
-// middlewares
-app.use(cors()); // allow frontend requests
+// Middlewares
+app.use(cors()); // allow cross-origin requests
 app.use(express.json());
 
-// JWT secret key (keep it safe in env variables in production!)
+// JWT secret key
 const JWT_SECRET = "supersecretkey";
 
 // ==========================
@@ -23,12 +27,12 @@ const JWT_SECRET = "supersecretkey";
 // ==========================
 const authMiddleware = (req, res, next) => {
   try {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
+    const token = req.headers["authorization"];
     if (!token) return res.status(401).json({ error: "No token provided" });
 
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded; // store user info in request
-    next(); // proceed to route
+    const decoded = jwt.verify(token.replace("Bearer ", ""), JWT_SECRET);
+    req.user = decoded;
+    next();
   } catch (err) {
     res.status(401).json({ error: "Invalid token" });
   }
@@ -38,36 +42,32 @@ const authMiddleware = (req, res, next) => {
 // 🔹 Routes
 // ==========================
 
-// test route
+// Test route
 app.get("/", (req, res) => {
-  res.send("🚀 Express + MongoDB + Auth server is running!");
+  res.send("🚀 Server running!");
 });
 
-// ✅ SIGNUP
+// Signup
 app.post("/signup", async (req, res) => {
   try {
     const { username, email, password } = req.body;
-
     const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ error: "User already exists" });
+    if (existingUser) return res.status(400).json({ error: "User exists" });
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ username, email, password: hashedPassword });
     await user.save();
 
-    res.status(201).json({ msg: "✅ User registered successfully!" });
+    res.status(201).json({ msg: "✅ User registered!" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ LOGIN
+// Signin
 app.post("/signin", async (req, res) => {
   try {
     const { email, password } = req.body;
-
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: "Invalid credentials" });
 
@@ -75,64 +75,29 @@ app.post("/signin", async (req, res) => {
     if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
-
     res.json({ msg: "✅ Login successful!", token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ GET PROFILE
+// Protected profile route
 app.get("/profile", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
     if (!user) return res.status(404).json({ error: "User not found" });
-
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ UPDATE PROFILE
-app.put("/profile", authMiddleware, async (req, res) => {
-  try {
-    const { username, email, phone } = req.body;
-
-    const user = await User.findById(req.user.id);
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    // update fields if provided
-    if (username) user.username = username;
-    if (email) user.email = email;
-    if (phone) user.phone = phone;
-
-    await user.save();
-    res.json({ msg: "✅ Profile updated successfully!" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ✅ Get all users (protected - admin/debug)
-app.get("/users", authMiddleware, async (req, res) => {
-  try {
-    const users = await User.find().select("-password");
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // ==========================
-// 🔹 UPI Routes
+// 🔹 Cart & Payment Routes
 // ==========================
-app.use("/api", upiRouter);
+app.use("/api/cart", authMiddleware, cartRouter);
+app.use("/api/upi", authMiddleware, upiRouter);
 
-// ==========================
-// 🔹 Start Server
-// ==========================
-const PORT = 5000;
-app.listen(PORT, () =>
-  console.log(`✅ Server running on http://localhost:${PORT}`)
-);
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));

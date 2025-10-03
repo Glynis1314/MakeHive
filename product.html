@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products - MakeHive</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .product {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+    }
+    button {
+      background: #ff6a00;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #ff4081;
+    }
+  </style>
+</head>
+<body>
+  <h1>Available Products</h1>
+  <div id="product-list"></div>
+
+  <script>
+    async function loadProducts() {
+      try {
+        const res = await fetch("http://localhost:5000/api/products"); // 👈 make sure you have a products API
+        const products = await res.json();
+
+        const list = document.getElementById("product-list");
+        list.innerHTML = "";
+
+        products.forEach(p => {
+          const div = document.createElement("div");
+          div.classList.add("product");
+          div.innerHTML = `
+            <h3>${p.name}</h3>
+            <p>₹${p.price}</p>
+            <button onclick="addToCart('${p._id}')">Add to Cart</button>
+          `;
+          list.appendChild(div);
+        });
+      } catch (err) {
+        console.error("Error loading products:", err);
+      }
+    }
+
+    async function addToCart(productId) {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please log in first!");
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:5000/api/cart", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({ productId, quantity: 1 })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert("✅ Product added to cart");
+          console.log("Cart:", data.cart);
+        } else {
+          alert("❌ " + (data.error || "Failed to add"));
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        alert("⚠️ Something went wrong");
+      }
+    }
+
+    loadProducts();
+  </script>
+</body>
+</html>
