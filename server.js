@@ -1,3 +1,6 @@
+require("dotenv").config();
+
+const mockProducts = require("./mockProducts");
 const express = require("express");
 const connectDB = require("./db");
 const cors = require("cors");
@@ -8,7 +11,7 @@ const User = require("./models/User");
 const cartRouter = require("./routes/cart");
 const upiRouter = require("./routes/upi");
 const Product = require("./models/Product");
-
+const axios = require("axios");
 // Initialize app
 const app = express();
 
@@ -170,15 +173,15 @@ app.post("/reset-password", async (req, res) => {
 });
 
 // Search products
+
 app.get("/products", async (req, res) => {
   try {
     const query = req.query.q || "";
-    // Case-insensitive search for products by name
-    const products = await Product.find({
-      name: { $regex: query, $options: "i" }
-    }); // optional: populate seller info
-
-    res.json(products);
+    // Case-insensitive search in mock products
+    const results = mockProducts.filter(product =>
+      product.name.toLowerCase().includes(query.toLowerCase())
+    );
+    res.json(results);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch products" });
