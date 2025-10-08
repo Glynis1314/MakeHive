@@ -1,132 +1,161 @@
-
-const cartProductsDiv = document.getElementById("cart-products");
+const cartContainer = document.getElementById("cartContainer");
+const totalEl = document.getElementById("total");
 const cartQRCodesDiv = document.getElementById("cart-qrcodes");
-const totalAmountSpan = document.getElementById("total-amount");
+const darkModeToggle = document.getElementById("darkModeToggle");
 
 let productsInCart = [];
+const token = localStorage.getItem("token");
 
-// Load cart
+// Dark mode toggle
+function applyDarkMode(enable) {
+  document.body.classList.toggle("dark-mode", enable);
+  document.querySelectorAll(".product").forEach(p => p.classList.toggle("dark-mode", enable));
+  document.querySelectorAll(".remove-btn").forEach(b => b.classList.toggle("dark-mode", enable));
+  document.querySelectorAll(".quantity button").forEach(b => b.classList.toggle("dark-mode", enable));
+}
+darkModeToggle.addEventListener("click", () => {
+  const isDark = !document.body.classList.contains("dark-mode");
+  applyDarkMode(isDark);
+  localStorage.setItem("darkMode", isDark);
+});
+if (localStorage.getItem("darkMode") === "true") applyDarkMode(true);
+
+// Not logged in
+if (!token) {
+  cartContainer.innerHTML = "<p class='empty'>Please sign in to view your cart.</p>";
+} else {
+  loadCart();
+}
+
+// Load cart from backend
 async function loadCart() {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    cartProductsDiv.innerHTML = "<p>Please log in to view your cart</p>";
-    totalAmountSpan.textContent = "0";
-    return;
-  }
-
   try {
     const res = await fetch("http://localhost:5000/api/cart", {
       headers: { "Authorization": "Bearer " + token }
     });
-    productsInCart = await res.json();
+    if (!res.ok) throw new Error("Failed to fetch cart");
+    const data = await res.json();
 
-    if (!productsInCart.length) {
-      cartProductsDiv.innerHTML = "<p>Your cart is empty</p>";
-      totalAmountSpan.textContent = "0";
-      cartQRCodesDiv.innerHTML = "";
-    } else {
-      renderProducts();
-      updateQRCodes();
-    }
+    // Normalize cart using backend fields only
+    productsInCart = data.map(item => ({
+      productId: item.productId,
+      name: item.name || "Unnamed Product",
+      price: item.price || 0,
+      image: item.image || "images/default-banner.jpg",
+      quantity: item.quantity || 1
+    }));
+
+    renderCart();
+
   } catch (err) {
     console.error("Error loading cart:", err);
-    cartProductsDiv.innerHTML = "<p>Failed to load cart</p>";
+    cartContainer.innerHTML = "<p class='empty'>Error fetching cart data.</p>";
   }
 }
 
-// Render products
-function renderProducts() {
-  cartProductsDiv.innerHTML = "";
-  productsInCart.forEach(product => {
-    const productDiv = document.createElement("div");
-    productDiv.classList.add("product");
-    productDiv.innerHTML = `
-      <input type="checkbox" data-id="${product._id}" checked>
-      <img src="${product.image}" alt="${product.name}" style="width:100px;">
-      <div>
-        <p>${product.name}</p>
-        <span>₹${product.price} × ${product.quantity}</span>
+// Render cart
+function renderCart() {
+  if (!productsInCart.length) {
+    cartContainer.innerHTML = "<p class='empty'>Your cart is empty 🛒</p>";
+    totalEl.textContent = "";
+    cartQRCodesDiv.innerHTML = "";
+    return;
+  }
+
+  cartContainer.innerHTML = "";
+  let total = 0;
+
+  productsInCart.forEach(item => {
+    const subtotal = item.price * item.quantity;
+    total += subtotal;
+
+    const div = document.createElement("div");
+    div.className = "product" + (document.body.classList.contains("dark-mode") ? " dark-mode" : "");
+    div.innerHTML = `
+      <img src="${item.image}" alt="${item.name}">
+      <div class="product-info">
+        <h3>${item.name}</h3>
+        <p>₹${item.price}</p>
       </div>
-      <button class="remove-btn" data-id="${product._id}">Remove</button>
+      <div class="quantity">
+        <button class="decrease">-</button>
+        <span>${item.quantity}</span>
+        <button class="increase">+</button>
+      </div>
+      <div>₹${subtotal}</div>
+      <button class="remove-btn">Remove</button>
     `;
-    cartProductsDiv.appendChild(productDiv);
-  });
 
-  document.querySelectorAll("#cart-products input").forEach(input => {
-    input.addEventListener("change", updateQRCodes);
-  });
-  document.querySelectorAll(".remove-btn").forEach(btn => {
-    btn.addEventListener("click", removeProduct);
-  });
-}
-
-// Remove product
-async function removeProduct(e) {
-  const id = e.target.dataset.id;
-  const token = localStorage.getItem("token");
-  if (!token) return alert("Please log in first!");
-
-  try {
-    await fetch(`http://localhost:5000/api/cart/${id}`, {
-      method: "DELETE",
-      headers: { "Authorization": "Bearer " + token }
+    // Quantity buttons
+    div.querySelector(".increase").addEventListener("click", () => {
+      item.quantity++;
+      renderCart();
     });
-    productsInCart = productsInCart.filter(p => p._id !== id);
-    renderProducts();
-    updateQRCodes();
-  } catch (err) {
-    console.error("Error removing product:", err);
-    alert("Failed to remove product");
-  }
+    div.querySelector(".decrease").addEventListener("click", () => {
+      if (item.quantity > 1) item.quantity--;
+      renderCart();
+    });
+
+    // Remove button
+    div.querySelector(".remove-btn").addEventListener("click", async () => {
+      if (!confirm("Remove this item from cart?")) return;
+      try {
+        await fetch(`http://localhost:5000/api/cart/${item.productId}`, {
+          method: "DELETE",
+          headers: { "Authorization": "Bearer " + token }
+        });
+        productsInCart = productsInCart.filter(p => p.productId !== item.productId);
+        renderCart();
+      } catch (err) {
+        console.error("Error removing product:", err);
+        alert("Failed to remove product");
+      }
+    });
+
+    cartContainer.appendChild(div);
+  });
+
+  totalEl.textContent = "Total: ₹" + total;
+
+  updateQRCodes();
 }
 
 // Update QR codes
 async function updateQRCodes() {
-  const selectedProductsIds = Array.from(document.querySelectorAll("#cart-products input:checked"))
-    .map(input => input.dataset.id);
-
-  // Calculate total
-  let total = 0;
-  selectedProductsIds.forEach(pid => {
-    const prod = productsInCart.find(p => p._id === pid);
-    if (prod) total += prod.price * (prod.quantity || 1);
-  });
-  totalAmountSpan.textContent = total || "0";
-
-  if (!selectedProductsIds.length) {
+  if (!productsInCart.length) {
     cartQRCodesDiv.innerHTML = "<p>No products selected</p>";
     return;
   }
 
-  const token = localStorage.getItem("token");
   try {
     const res = await fetch("http://localhost:5000/api/upi", {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token
       },
-      body: JSON.stringify({ products: selectedProductsIds })
+      body: JSON.stringify({ products: productsInCart.map(p => p.productId) })
     });
-    const data = await res.json();
+    if (!res.ok) throw new Error("Failed to fetch QR codes");
 
+    const data = await res.json();
     cartQRCodesDiv.innerHTML = "";
+
     data.forEach(seller => {
-      const sellerDiv = document.createElement("div");
-      sellerDiv.classList.add("qr-box");
-      sellerDiv.innerHTML = `
+      const div = document.createElement("div");
+      div.classList.add("qr-box");
+      div.innerHTML = `
         <h4>${seller.sellerName} - Total: ₹${seller.total}</h4>
-        <img src="${seller.qrCode}" alt="QR Code"/>
+        <img src="${seller.qrCode}" alt="QR Code" width="150"/>
         <ul>
-          ${seller.products.map(p => `<li>${p.name} - ₹${p.price}</li>`).join("")}
+          ${seller.products.map(p => `<li>${p.name || "Unnamed Product"} - ₹${p.price || 0}</li>`).join("")}
         </ul>
       `;
-      cartQRCodesDiv.appendChild(sellerDiv);
+      cartQRCodesDiv.appendChild(div);
     });
+
   } catch (err) {
     console.error("Error fetching QR codes:", err);
     cartQRCodesDiv.innerHTML = "<p>Failed to load QR codes</p>";
   }
 }
-
-loadCart();

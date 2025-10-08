@@ -148,38 +148,61 @@ function showResults(title, products) {
         <img src="${p.image}" alt="${p.name}" style="width:120px;height:120px;object-fit:cover;">
         <p>${p.name}</p>
         <span>₹${p.price}</span>
-        <button class="add-to-cart-btn" data-id="${p._id}">Add to Cart</button>
+        <button class="add-to-cart-btn">Add to Cart</button>
       </div>`;
   });
   resultsSection.scrollIntoView({behavior:"smooth"});
 }
 
 // ✅ Add to Cart with dynamic token
+// ✅ Add to Cart with dynamic token (ID-free)
 document.addEventListener("click", async (e) => {
   if(e.target.classList.contains("add-to-cart-btn")){
-    const productId = e.target.dataset.id;
     const token = getToken();
     if(!token){ alert("Please sign in first!"); return; }
+
+    // Get product info from the DOM
+    const productDiv = e.target.closest(".product");
+    const name = productDiv.querySelector("p").textContent;
+    const price = productDiv.querySelector("span").textContent.replace("₹", "");
+    const image = productDiv.querySelector("img").src;
+
     try {
       const res = await fetch("http://localhost:5000/api/cart", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": "Bearer "+token },
-        body: JSON.stringify({ productId, quantity:1 })
+        headers: { 
+          "Content-Type": "application/json", 
+          "Authorization": "Bearer "+token 
+        },
+        body: JSON.stringify({ name, price, quantity: 1, image }) // ✅ no productId
       });
+
       const data = await res.json();
       if(res.ok) alert("✅ Product added to cart");
       else alert("❌ Failed: " + (data.error || JSON.stringify(data)));
-    } catch(err){ console.error("Fetch error:", err); alert("❌ Network/server error"); }
+    } catch(err){ 
+      console.error("Fetch error:", err); 
+      alert("❌ Network/server error"); 
+    }
   }
 });
 
-// Categories & Recommendations (static for homepage)
+
 const categories = {
   "Top Offers":[{name:"Discounted Vase",price:299,image:"images/handvase.jpg"},{name:"Festive Rakhi Pack",price:199,image:"images/rakhis.jpg"}],
   "Bestsellers":[{name:"Crochet Bag",price:799,image:"images/crochet.jpg"},{name:"Handloom Scarf",price:1299,image:"images/scarf.jpg"}],
   "Handicrafts":[{name:"Clay Pottery",price:349,image:"images/pottery.jpg"},{name:"DIY Handmade Card",price:899,image:"images/DIY.jpg"}],
   "Fashion":[{name:"Ethnic Handbag",price:1099,image:"images/crochet.jpg"},{name:"Traditional Scarf",price:1299,image:"images/scarf.jpg"}]
 };
+// Give each mock product a temporary unique ID
+Object.keys(categories).forEach(cat => {
+  categories[cat].forEach((p, index) => {
+    if (!p._id) p._id = `mock-${cat}-${index}`;
+  });
+});
+
+
+
 document.querySelectorAll(".categories .circle").forEach(circle=>{
   circle.addEventListener("click",()=>{ 
     const cat=circle.querySelector("p").textContent; 
@@ -188,16 +211,37 @@ document.querySelectorAll(".categories .circle").forEach(circle=>{
 });
 
 // Search
-document.getElementById("searchBtn").addEventListener("click",async ()=> {
+// Search (static + dynamic)
+document.getElementById("searchBtn").addEventListener("click", async () => {
   const query = document.getElementById("searchInput").value.trim();
-  if(!query) return;
+  if (!query) return;
+
   try {
-    const response = await fetch(`http://localhost:5000/products?q=${encodeURIComponent(query)}`);
+    // Fetch combined static + dynamic products from your backend
+    const response = await fetch(`http://localhost:5000/api/products/search?query=${encodeURIComponent(query)}`);
     const products = await response.json();
-    if(products.length>0) showResults(`Search results for "${query}"`,products);
-    else showResults(`Search results for "${query}"`,[{name:"No results found",price:"-",image:"images/default-banner.jpg"}]);
-  } catch(err){ console.error(err); showResults(`Search results for "${query}"`,[{name:"Error fetching products",price:"-",image:"images/default-banner.jpg"}]); }
+
+    if (products.length > 0) {
+      showResults(`Search results for "${query}"`, products);
+    } else {
+      showResults(`Search results for "${query}"`, [{
+        name: "No results found",
+        price: "-",
+        image: "images/default-banner.jpg",
+        seller: ""
+      }]);
+    }
+  } catch (err) {
+    console.error(err);
+    showResults(`Search results for "${query}"`, [{
+      name: "Error fetching products",
+      price: "-",
+      image: "images/default-banner.jpg",
+      seller: ""
+    }]);
+  }
 });
+
 </script>
 </body>
 </html>

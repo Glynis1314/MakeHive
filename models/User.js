@@ -1,28 +1,38 @@
 const mongoose = require("mongoose");
 
-// Define the User schema
 const UserSchema = new mongoose.Schema(
   {
     username: {
       type: String,
       required: true,
       unique: true,
-      trim: true, // removes extra spaces
+      trim: true,
     },
     email: {
       type: String,
       required: true,
       unique: true,
-      lowercase: true, // store all emails in lowercase
+      lowercase: true,
     },
     password: {
       type: String,
       required: true,
-      minlength: 6, // ensure passwords are at least 6 chars
+      minlength: 6,
     },
+    cart: [
+      {
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+        },
+        quantity: {
+          type: Number,
+          default: 1,
+        },
+      },
+    ],
   },
-  { timestamps: true } // adds createdAt and updatedAt automatically
+  { timestamps: true }
 );
 
-// Export the User model
 module.exports = mongoose.model("User", UserSchema);

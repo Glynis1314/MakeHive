@@ -1,90 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MakeHive - Cart</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
 <style>
-  body { font-family: Arial; padding: 20px; }
-  .product { display:flex; align-items:center; gap:15px; margin-bottom:10px; }
-  .remove-btn { background:#ff4d4f; color:white; border:none; padding:5px 10px; cursor:pointer; }
-  .qr-box { border:1px solid #ccc; padding:10px; margin-top:15px; }
+body { font-family: Arial, sans-serif; padding: 20px; }
+h1 { text-align: center; margin-bottom: 30px; font-family: 'Dancing Script', cursive; }
+.cart-container { max-width: 800px; margin: auto; }
+.product { display: flex; align-items: center; justify-content: space-between; border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+.product img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; }
+.product-info { flex: 1; margin-left: 15px; }
+.product-info h3 { margin: 0 0 5px; }
+.quantity { display: flex; align-items: center; gap: 5px; }
+.quantity button { padding: 5px 10px; background: #ff4081; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+.quantity button:hover { background: #e73370; }
+.remove-btn { background: #ff4d4f; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+.remove-btn:hover { background: #d9363e; }
+.total { text-align: right; font-weight: bold; margin-top: 20px; font-size: 1.2em; }
+.empty { text-align: center; font-size: 1.2em; margin-top: 50px; color: #777; }
+
+/* Dark mode */
+body.dark-mode { background: #121212; color: #f5f5f5; }
+.product.dark-mode { background: #1e1e1e; border-color: #444; }
+.remove-btn.dark-mode { background: #ff6b6b; }
+.quantity button.dark-mode { background: #ff4081; }
 </style>
 </head>
 <body>
+<header>
+  <div class="logo" style="font-family: 'Dancing Script', cursive; font-size: 28px;">MakeHive</div>
+  <nav style="margin-top:10px;">
+    <a href="home.html">🏠 Home</a> |
+    <a href="profile.html">👤 Profile</a> |
+    <a href="about.html">ℹ️ About</a>
+  </nav>
+  <button id="darkModeToggle" style="float:right;">🌙 Dark Mode</button>
+</header>
+
 <h1>Your Cart</h1>
-<div id="cart-products"></div>
-<p><strong>Total:</strong> ₹<span id="total-amount">0</span></p>
+<div class="cart-container" id="cartContainer"></div>
+<div class="total" id="total"></div>
 <div id="cart-qrcodes"></div>
 
 <script>
-const cartProductsDiv=document.getElementById("cart-products");
-const cartQRCodesDiv=document.getElementById("cart-qrcodes");
-const totalAmountSpan=document.getElementById("total-amount");
-let productsInCart=[];
+const token = localStorage.getItem("token");
+const cartContainer = document.getElementById("cartContainer");
+const totalEl = document.getElementById("total");
+const cartQRCodesDiv = document.getElementById("cart-qrcodes");
+let productsInCart = [];
 
-function getToken(){const token=localStorage.getItem("token"); if(!token) alert("⚠️ You must log in first"); return token;}
+// Dark mode toggle
+const darkModeToggle = document.getElementById("darkModeToggle");
+function applyDarkMode(enable) {
+  document.body.classList.toggle("dark-mode", enable);
+  document.querySelectorAll(".product").forEach(p => p.classList.toggle("dark-mode", enable));
+  document.querySelectorAll(".remove-btn").forEach(b => b.classList.toggle("dark-mode", enable));
+  document.querySelectorAll(".quantity button").forEach(b => b.classList.toggle("dark-mode", enable));
+}
+darkModeToggle.addEventListener("click", () => {
+  const isDark = !document.body.classList.contains("dark-mode");
+  applyDarkMode(isDark);
+  localStorage.setItem("darkMode", isDark);
+});
+if (localStorage.getItem("darkMode") === "true") applyDarkMode(true);
 
-async function loadCart(){
-  const token=getToken(); if(!token) return;
-  try{
-    const res=await fetch("http://localhost:5000/api/cart",{headers:{Authorization:`Bearer ${token}`}});
-    if(!res.ok) throw new Error("Unauthorized or failed request");
-    productsInCart=await res.json();
-    if(!productsInCart.length) cartProductsDiv.innerHTML="<p>Cart is empty</p>";
-    renderProducts(); updateQRCodes();
-  }catch(err){console.error(err); cartProductsDiv.innerHTML="<p>Failed to load cart</p>";}
+// Not logged in
+if (!token) {
+  cartContainer.innerHTML = "<p class='empty'>Please sign in to view your cart.</p>";
+} else {
+  loadCart();
 }
 
-function renderProducts(){
-  cartProductsDiv.innerHTML="";
-  productsInCart.forEach(p=>{
-    const div=document.createElement("div");
-    div.classList.add("product");
-    div.innerHTML=`<input type="checkbox" data-id="${p._id}" checked>
-      <img src="${p.image||'images/default-banner.jpg'}" width="80">
-      <div><p>${p.name}</p><p>₹${p.price}</p></div>
-      <button class="remove-btn" data-id="${p._id}">Remove</button>`;
-    cartProductsDiv.appendChild(div);
+// Load cart with 2 default products
+function loadCart() {
+  productsInCart = [
+    {
+      productId: "home-1",
+      name: "Handmade Vase",
+      price: 499,
+      image: "images/handvase.jpg",
+      quantity: 1
+    },
+    {
+      productId: "home-2",
+      name: "Crochet Bag",
+      price: 799,
+      image: "images/crochet.jpg",
+      quantity: 1
+    }
+  ];
+
+  renderCart();
+}
+
+// Render cart
+function renderCart() {
+  if (!productsInCart.length) {
+    cartContainer.innerHTML = "<p class='empty'>Your cart is empty 🛒</p>";
+    totalEl.textContent = "";
+    cartQRCodesDiv.innerHTML = "";
+    return;
+  }
+
+  cartContainer.innerHTML = "";
+  let total = 0;
+
+  productsInCart.forEach(item => {
+    const subtotal = item.price * item.quantity;
+    total += subtotal;
+
+    const div = document.createElement("div");
+    div.className = "product" + (document.body.classList.contains("dark-mode") ? " dark-mode" : "");
+    div.innerHTML = `
+      <img src="${item.image}" alt="${item.name}">
+      <div class="product-info">
+        <h3>${item.name}</h3>
+        <p>₹${item.price}</p>
+      </div>
+      <div class="quantity">
+        <button class="decrease">-</button>
+        <span>${item.quantity}</span>
+        <button class="increase">+</button>
+      </div>
+      <div>₹${subtotal}</div>
+      <button class="remove-btn">Remove</button>
+    `;
+
+    // Quantity buttons
+    div.querySelector(".increase").addEventListener("click", () => {
+      item.quantity++;
+      renderCart();
+    });
+    div.querySelector(".decrease").addEventListener("click", () => {
+      if (item.quantity > 1) item.quantity--;
+      renderCart();
+    });
+
+    // Remove button
+    div.querySelector(".remove-btn").addEventListener("click", async () => {
+      if (!confirm("Remove this item from cart?")) return;
+      try {
+        await fetch(`http://localhost:5000/api/cart/${item.productId}`, {
+          method: "DELETE",
+          headers: { "Authorization": "Bearer " + token }
+        });
+        productsInCart = productsInCart.filter(p => p.productId !== item.productId);
+        renderCart();
+      } catch (err) {
+        console.error("Error removing product:", err);
+      }
+    });
+
+    cartContainer.appendChild(div);
   });
-  document.querySelectorAll(".remove-btn").forEach(btn=>btn.addEventListener("click",removeProduct));
-  document.querySelectorAll("#cart-products input").forEach(input=>input.addEventListener("change",updateQRCodes));
+
+  totalEl.textContent = "Total: ₹" + total;
+
+  updateQRCodes();
 }
 
-async function removeProduct(e){
-  const id=e.target.dataset.id;
-  const token=getToken(); if(!token) return;
-  try{
-    const res=await fetch(`http://localhost:5000/api/cart/${id}`,{method:"DELETE",headers:{Authorization:`Bearer ${token}`}});
-    if(!res.ok) throw new Error("Failed to remove product");
-    productsInCart=productsInCart.filter(p=>p._id!==id);
-    renderProducts(); updateQRCodes();
-  }catch(err){console.error(err);}
-}
+// Update QR codes
+async function updateQRCodes() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
 
-async function updateQRCodes(){
-  const token=getToken(); if(!token) return;
-  const selectedIds=Array.from(document.querySelectorAll("#cart-products input:checked")).map(i=>i.dataset.id);
-  let total=0; selectedIds.forEach(id=>{const prod=productsInCart.find(p=>p._id===id); if(prod) total+=prod.price;});
-  totalAmountSpan.textContent=total;
-  if(!selectedIds.length){cartQRCodesDiv.innerHTML="<p>No products selected</p>"; return;}
-  try{
-    const res=await fetch("http://localhost:5000/api/upi",{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify({products:selectedIds})});
-    if(!res.ok) throw new Error("Failed to fetch QR codes");
-    const data=await res.json();
-    cartQRCodesDiv.innerHTML="";
-    data.forEach(s=>{
-      const div=document.createElement("div");
+  const selectedIds = productsInCart.map(p => p.productId);
+
+  if (!selectedIds.length) {
+    cartQRCodesDiv.innerHTML = "<p>No products selected</p>";
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:5000/api/upi", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({ products: selectedIds })
+    });
+    if (!res.ok) throw new Error("Failed to fetch QR codes");
+
+    const data = await res.json();
+    cartQRCodesDiv.innerHTML = "";
+
+    data.forEach(seller => {
+      const div = document.createElement("div");
       div.classList.add("qr-box");
-      div.innerHTML=`<h3>${s.sellerName} - ₹${s.total}</h3>
-        <img src="${s.qrCode}" width="150">
-        <ul>${s.products.map(p=>`<li>${p.name} - ₹${p.price}</li>`).join("")}</ul>`;
+      div.innerHTML = `
+        <h4>${seller.sellerName} - Total: ₹${seller.total}</h4>
+        <img src="${seller.qrCode}" alt="QR Code" width="150"/>
+        <ul>
+          ${seller.products.map(p => `<li>${p.name || "Unnamed Product"} - ₹${p.price || 0}</li>`).join("")}
+        </ul>
+      `;
       cartQRCodesDiv.appendChild(div);
     });
-  }catch(err){console.error(err); cartQRCodesDiv.innerHTML="<p>Failed to load QR codes</p>";}
-}
 
-loadCart();
+  } catch (err) {
+    console.error("Error fetching QR codes:", err);
+    cartQRCodesDiv.innerHTML = "<p>.</p>";
+  }
+}
 </script>
 </body>
 </html>

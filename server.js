@@ -12,6 +12,7 @@ const cartRouter = require("./routes/cart");
 const upiRouter = require("./routes/upi");
 const Product = require("./models/Product");
 const axios = require("axios");
+
 // Initialize app
 const app = express();
 
@@ -47,6 +48,7 @@ const authMiddleware = (req, res, next) => {
 
 // Test
 app.get("/", (req, res) => res.send("🚀 Server running!"));
+
 app.get("/test-db", async (req, res) => {
   try {
     const products = await Product.find({});
@@ -105,9 +107,6 @@ app.get("/profile", authMiddleware, async (req, res) => {
 // ==========================
 // 🔹 Forgot Password
 // ==========================
-// ==========================
-// 🔹 Forgot Password Route
-// ==========================
 app.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: "Email required" });
@@ -116,19 +115,15 @@ app.post("/forgot-password", async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: "User not found" });
 
-    // Generate a 15-minute JWT token
     const resetToken = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "15m" });
-
-    // Use the actual frontend URL where reset-password.html is served
-    const frontendURL = "http://127.0.0.1:5500/MakeHive"; // replace with your hosted URL when deployed
+    const frontendURL = "http://127.0.0.1:5500/MakeHive";
     const resetLink = `${frontendURL}/reset-password.html?token=${resetToken}`;
 
-    // Nodemailer setup
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: { 
         user: "glynisdarryldmello@gmail.com", 
-        pass: "fzftikfwqhxrygog" // use App Password if 2FA enabled
+        pass: "fzftikfwqhxrygog"
       }
     });
 
@@ -148,8 +143,6 @@ app.post("/forgot-password", async (req, res) => {
     res.status(500).json({ error: "Failed to send email" });
   }
 });
-
-
 
 // Reset Password
 app.post("/reset-password", async (req, res) => {
@@ -172,16 +165,24 @@ app.post("/reset-password", async (req, res) => {
   }
 });
 
-// Search products
-
-app.get("/products", async (req, res) => {
+// ==========================
+// 🔹 Search products (static + dynamic)
+// ==========================
+app.get("/api/products/search", async (req, res) => {
   try {
-    const query = req.query.q || "";
-    // Case-insensitive search in mock products
-    const results = mockProducts.filter(product =>
-      product.name.toLowerCase().includes(query.toLowerCase())
+    const query = req.query.query || "";
+
+    // Static mock products
+    const staticResults = mockProducts.filter(p =>
+      p.name.toLowerCase().includes(query.toLowerCase())
     );
-    res.json(results);
+
+    // Dynamic products from MongoDB
+    const dynamicResults = await Product.find({
+      name: { $regex: query, $options: "i" }
+    });
+
+    res.json([...staticResults, ...dynamicResults]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch products" });
