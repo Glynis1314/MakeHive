@@ -7,22 +7,200 @@
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <style>
+    /* Product Cards and Hover Effects */
     .categories .circle, .recommendations .product, #businessList .product {
-      cursor: pointer; transition: transform 0.2s;
+      cursor: pointer; transition: all 0.3s ease;
     }
-    .categories .circle:hover, .recommendations .product:hover, #businessList .product:hover { transform: scale(1.05); }
-    #businessList .product img { display: block; margin: auto; }
-    #businessList .product button { margin-top: 5px; padding: 5px 10px; border:none; border-radius:15px; background:#ff4081; color:white; cursor:pointer; transition:0.3s; }
-    #businessList .product button:hover { background:#e73370; }
-    #businessList .product .seller { font-size:0.85em; color:#555; }
+    .categories .circle:hover, .recommendations .product:hover, #businessList .product:hover { 
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Logo font style */
+    .logo {
+      font-family: 'Dancing Script', cursive;
+      font-size: 32px;
+    }
+
+    /* Enhanced Scroll Container */
+    .scroll-container {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      cursor: grab;
+      scrollbar-width: none;  /* Firefox */
+      -ms-overflow-style: none;  /* IE and Edge */
+      position: relative;
+    }
+    
+    /* Hide scrollbar for Chrome/Safari/Opera */
+    .scroll-container::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .scroll-container:active {
+      cursor: grabbing;
+    }
+
+    /* Gradient indicators for scroll */
+    .scroll-container::before,
+    .scroll-container::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50px;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .scroll-container::before {
+      left: 0;
+      background: linear-gradient(to right, rgba(255,255,255,0.9), transparent);
+    }
+
+    .scroll-container::after {
+      right: 0;
+      background: linear-gradient(to left, rgba(255,255,255,0.9), transparent);
+    }
+
+    .scroll-container.can-scroll-left::before {
+      opacity: 1;
+    }
+
+    .scroll-container.can-scroll-right::after {
+      opacity: 1;
+    }
+
+    /* Dark mode gradient adjustments */
+    .dark-mode .scroll-container::before {
+      background: linear-gradient(to right, rgba(26,26,26,0.9), transparent);
+    }
+
+    .dark-mode .scroll-container::after {
+      background: linear-gradient(to left, rgba(26,26,26,0.9), transparent);
+    }
+
+    /* Product Card Styles */
+    .recommendations .product {
+      flex: 0 0 250px;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #eee;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .recommendations .product img {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      transition: transform 0.3s ease;
+    }
+
+    .recommendations .product:hover img {
+      transform: scale(1.05);
+    }
+
+    .recommendations .product p {
+      font-weight: 500;
+      margin: 8px 0;
+    }
+
+    .recommendations .product span {
+      color: #ff4081;
+      font-weight: bold;
+    }
+
+    /* Business List Products */
+    #businessList .product {
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    #businessList .product img { 
+      display: block;
+      margin: auto;
+      border-radius: 8px;
+    }
+
+    #businessList .product button,
+    .recommendations .product button { 
+      margin-top: 10px;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 20px;
+      background: #e6b8a2;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    #businessList .product button:hover,
+    .recommendations .product button:hover { 
+      background: #d49a7b;
+      transform: scale(1.05);
+    }
+
+    #businessList .product .seller { 
+      font-size: 0.85em;
+      color: #555;
+    }
+
+    /* Dark Mode Styles */
     body.dark-mode { background:#121212; color:#f5f5f5; transition:0.3s; }
     header.dark-mode, footer.dark-mode { background:#1e1e1e; }
-    .hero.dark-mode, .categories.dark-mode, .recommendations.dark-mode, .signin-section.dark-mode { background:#1a1a1a; color:#f5f5f5; }
-    .product.dark-mode { background:#1e1e1e; color:#f5f5f5; border-color:#444; }
+    .hero.dark-mode, .categories.dark-mode, .recommendations.dark-mode, .signin-section.dark-mode { 
+      background:#1a1a1a;
+      color:#f5f5f5;
+    }
+    .product.dark-mode { 
+      background:#1e1e1e;
+      color:#f5f5f5;
+      border-color:#444;
+    }
     .circle.dark-mode img { background:#2a2a2a; }
     nav a.dark-mode { color:#f5f5f5; }
-    .search-bar input.dark-mode { background:#2a2a2a; color:#f5f5f5; border:1px solid #555; }
+    .search-bar input.dark-mode { 
+      background:#2a2a2a;
+      color:#f5f5f5;
+      border:1px solid #555;
+    }
     .search-bar button.dark-mode { background:#444; color:#fff; }
+
+    .dark-mode .scroll-container::-webkit-scrollbar-track {
+      background: #2a2a2a;
+    }
+    
+    .dark-mode .scroll-container::-webkit-scrollbar-thumb {
+      background: #ff4081;
+    }
+
+    /* Dark Mode Toggle Button */
+    #darkModeToggle {
+      background: none;
+      border: none;
+      font-size: 1.5rem; /* Makes the emoji larger */
+      cursor: pointer;
+      color: #8B4513; /* A brown color that fits the theme */
+      padding: 0 10px;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    #darkModeToggle:hover {
+      transform: scale(1.2);
+    }
+
   </style>
 </head>
 <body>
@@ -38,7 +216,9 @@
     <a href="profile.html">Profile 👤</a>
     <a href="#" class="seller-btn">Become a Seller</a>
   </nav>
-  <button id="darkModeToggle" style="margin-left:20px;">🌙 Dark Mode</button>
+  <button id="darkModeToggle">
+    <span class="mode-icon">🌙</span>
+  </button>
 </header>
 
 <section class="hero">
@@ -56,9 +236,54 @@
 <section class="recommendations">
   <h2>Recommended for You</h2>
   <div class="scroll-container">
-    <div class="product" data-id="1"><img src="images/handvase.jpg" alt="Handmade Vase"><p>Handmade Vase</p><span>499</span><button class="add-to-cart-btn" data-id="1">Add to Cart</button></div>
-    <div class="product" data-id="2"><img src="images/crochet.jpg" alt="Crochet Bag"><p>Crochet Bag</p><span>799</span><button class="add-to-cart-btn" data-id="2">Add to Cart</button></div>
-    <div class="product" data-id="3"><img src="images/scarf.jpg" alt="Handloom Scarf"><p>Handloom Scarf</p><span>1299</span><button class="add-to-cart-btn" data-id="3">Add to Cart</button></div>
+    <div class="product" data-id="1">
+      <img src="images/handvase.jpg" alt="Handmade Vase">
+      <p>Handmade Vase</p>
+      <span>₹499</span>
+      <button class="add-to-cart-btn" data-id="1">Add to Cart</button>
+    </div>
+    <div class="product" data-id="2">
+      <img src="images/crochet.jpg" alt="Crochet Bag">
+      <p>Designer Crochet Bag</p>
+      <span>₹799</span>
+      <button class="add-to-cart-btn" data-id="2">Add to Cart</button>
+    </div>
+    <div class="product" data-id="3">
+      <img src="images/scarf.jpg" alt="Handloom Scarf">
+      <p>Handwoven Silk Scarf</p>
+      <span>₹1299</span>
+      <button class="add-to-cart-btn" data-id="3">Add to Cart</button>
+    </div>
+    <div class="product" data-id="4">
+      <img src="images/pottery.jpg" alt="Clay Pottery">
+      <p>Handcrafted Clay Pot</p>
+      <span>₹899</span>
+      <button class="add-to-cart-btn" data-id="4">Add to Cart</button>
+    </div>
+    <div class="product" data-id="5">
+      <img src="images/DIY.jpg" alt="DIY Craft Kit">
+      <p>DIY Craft Kit</p>
+      <span>₹599</span>
+      <button class="add-to-cart-btn" data-id="5">Add to Cart</button>
+    </div>
+    <div class="product" data-id="6">
+      <img src="images/art.jpg" alt="Wall Art">
+      <p>Traditional Wall Art</p>
+      <span>₹1499</span>
+      <button class="add-to-cart-btn" data-id="6">Add to Cart</button>
+    </div>
+    <div class="product" data-id="7">
+      <img src="images/crafts.jpg" alt="Handmade Crafts">
+      <p>Decorative Crafts Set</p>
+      <span>₹999</span>
+      <button class="add-to-cart-btn" data-id="7">Add to Cart</button>
+    </div>
+    <div class="product" data-id="8">
+      <img src="images/rakhis.jpg" alt="Designer Rakhi">
+      <p>Designer Rakhi Set</p>
+      <span>₹399</span>
+      <button class="add-to-cart-btn" data-id="8">Add to Cart</button>
+    </div>
   </div>
 </section>
 
@@ -69,8 +294,8 @@
 
 <section class="signin-section">
   <p>For personalized recommendations – Sign in</p>
-  <button id="authBtn"></button>
-  <p id="forgotLink" style="margin-top:5px; cursor:pointer; color:#ff4081; text-decoration:underline; display:none;">Forgot Password?</p>
+  <button id="authBtn" class="signin-btn" data-state="signin"></button>
+  <p id="forgotLink" style="margin-top:10px; text-align:center; color:#666; cursor:pointer; text-decoration:none; display:none;">Forgot Password?</p>
 </section>
 
 <footer><p>© 2025 MakeHive. All rights reserved.</p></footer>
@@ -83,6 +308,7 @@ const businessList = document.getElementById("businessList");
 
 // Dark Mode
 const darkModeToggle = document.getElementById("darkModeToggle");
+const modeIcon = darkModeToggle.querySelector(".mode-icon");
 function applyDarkMode(enable) {
   document.body.classList.toggle("dark-mode", enable);
   document.querySelector("header").classList.toggle("dark-mode", enable);
@@ -96,13 +322,16 @@ function applyDarkMode(enable) {
   document.querySelectorAll("nav a").forEach(a => a.classList.toggle("dark-mode", enable));
   document.querySelectorAll(".search-bar input").forEach(i => i.classList.toggle("dark-mode", enable));
   document.querySelectorAll(".search-bar button").forEach(b => b.classList.toggle("dark-mode", enable));
+  modeIcon.textContent = enable ? "☀️" : "🌙";
 }
 darkModeToggle.addEventListener("click", ()=> {
   const isDark = !document.body.classList.contains("dark-mode");
   applyDarkMode(isDark);
   localStorage.setItem("darkMode", isDark);
 });
-if(localStorage.getItem("darkMode") === "true") applyDarkMode(true);
+
+const isDarkModeSaved = localStorage.getItem("darkMode") === "true";
+applyDarkMode(isDarkModeSaved);
 
 // Auth Button
 function getToken() { return localStorage.getItem("token"); }
@@ -113,6 +342,7 @@ function updateAuthButton() {
 
   if(token) {
     authBtn.textContent = "Logout";
+    authBtn.dataset.state = "logout";
     authBtn.onclick = () => { 
       localStorage.removeItem("token"); 
       alert("Logged out successfully!"); 
@@ -121,6 +351,7 @@ function updateAuthButton() {
     forgotLink.style.display = "none";
   } else {
     authBtn.textContent = "Sign In";
+    authBtn.dataset.state = "signin";
     authBtn.onclick = () => { window.location.href="login.html"; };
     forgotLink.style.display = "block";
     forgotLink.onclick = () => { window.location.href="forgot-password.html"; };
@@ -132,23 +363,41 @@ updateAuthButton();
 sellerBtn.addEventListener("click",(e)=> {
   e.preventDefault();
   const token = getToken();
-  if(token) window.location.href="become-seller.html";
-  else { alert("Please sign in first!"); window.location.href="signup.html"; }
+  const isSeller = localStorage.getItem("isSeller") === 'true';
+
+  if (token) {
+    if (isSeller) {
+      window.location.href = "seller-dashboard.html";
+    } else {
+      window.location.href = "become-seller.html";
+    }
+  } else { alert("Please sign in first!"); window.location.href="signup.html"; }
 });
 
 // Show search or category results
 function showResults(title, products) {
   resultsSection.style.display="block";
   resultsSection.querySelector("h2").textContent = title;
-  businessList.innerHTML="";
+  businessList.innerHTML = "";
   const isDark = document.body.classList.contains("dark-mode");
+
+  if (products.length === 0) {
+    businessList.innerHTML = `<p style="text-align:center; padding: 20px; color: #666;">No products found matching your search.</p>`;
+    resultsSection.scrollIntoView({behavior:"smooth"});
+    return;
+  }
+
   products.forEach(p => {
     businessList.innerHTML+=`
       <div class="product ${isDark?"dark-mode":""}" style="border:1px solid #ddd;padding:10px;margin:10px;display:inline-block;">
-        <img src="${p.image}" alt="${p.name}" style="width:120px;height:120px;object-fit:cover;">
+        <img src="${
+          p.imageUrl 
+            ? (p.imageUrl.startsWith('http') ? p.imageUrl : `http://localhost:5000${p.imageUrl}`) 
+            : 'images/default-banner.jpg'
+        }" alt="${p.name}" style="width:120px;height:120px;object-fit:cover;">
         <p>${p.name}</p>
         <span>₹${p.price}</span>
-        <button class="add-to-cart-btn" data-id="${p._id}">Add to Cart</button>
+        <button class="add-to-cart-btn" data-id="${p._id || p.id}">Add to Cart</button>
       </div>`;
   });
   resultsSection.scrollIntoView({behavior:"smooth"});
@@ -173,19 +422,111 @@ document.addEventListener("click", async (e) => {
   }
 });
 
-// Categories & Recommendations (static for homepage)
-const categories = {
-  "Top Offers":[{name:"Discounted Vase",price:299,image:"images/handvase.jpg"},{name:"Festive Rakhi Pack",price:199,image:"images/rakhis.jpg"}],
-  "Bestsellers":[{name:"Crochet Bag",price:799,image:"images/crochet.jpg"},{name:"Handloom Scarf",price:1299,image:"images/scarf.jpg"}],
-  "Handicrafts":[{name:"Clay Pottery",price:349,image:"images/pottery.jpg"},{name:"DIY Handmade Card",price:899,image:"images/DIY.jpg"}],
-  "Fashion":[{name:"Ethnic Handbag",price:1099,image:"images/crochet.jpg"},{name:"Traditional Scarf",price:1299,image:"images/scarf.jpg"}]
-};
-document.querySelectorAll(".categories .circle").forEach(circle=>{
-  circle.addEventListener("click",()=>{ 
-    const cat=circle.querySelector("p").textContent; 
-    if(categories[cat]) showResults(cat,categories[cat]); 
+// Handle category clicks to show more products
+document.querySelectorAll(".categories .circle").forEach(circle => {
+  circle.addEventListener("click", async () => {
+    const categoryName = circle.querySelector("p").textContent;
+    try {
+      const response = await fetch(`http://localhost:5000/products`);
+      const allProducts = await response.json();
+      let filteredProducts = [];
+
+      switch (categoryName) {
+        case "Fashion":
+          filteredProducts = allProducts.filter(p => p.category === 'Fashion');
+          break;
+        case "Handicrafts":
+          // Combine a few categories to represent "Handicrafts"
+          const handicraftCategories = ['Home', 'Art', 'Garden'];
+          filteredProducts = allProducts.filter(p => handicraftCategories.includes(p.category));
+          break;
+        case "Top Offers":
+          // Simulate "Top Offers" by showing the cheapest products
+          filteredProducts = allProducts.sort((a, b) => a.price - b.price).slice(0, 20);
+          break;
+        case "Bestsellers":
+          // Simulate "Bestsellers" by showing a random selection
+          filteredProducts = allProducts.sort(() => 0.5 - Math.random()).slice(0, 20);
+          break;
+        default:
+          filteredProducts = [];
+      }
+
+      showResults(categoryName, filteredProducts);
+
+    } catch (err) {
+      console.error("Failed to load category products:", err);
+      showResults(categoryName, []);
+    }
   });
 });
+
+// Drag to scroll functionality
+const scrollContainer = document.querySelector('.scroll-container');
+let isDown = false;
+let startX;
+let scrollLeft;
+
+scrollContainer.addEventListener('mousedown', (e) => {
+  isDown = true;
+  scrollContainer.style.cursor = 'grabbing';
+  startX = e.pageX - scrollContainer.offsetLeft;
+  scrollLeft = scrollContainer.scrollLeft;
+  // Prevent image drag while scrolling
+  e.preventDefault();
+});
+
+scrollContainer.addEventListener('mouseleave', () => {
+  isDown = false;
+  scrollContainer.style.cursor = 'grab';
+});
+
+scrollContainer.addEventListener('mouseup', () => {
+  isDown = false;
+  scrollContainer.style.cursor = 'grab';
+});
+
+scrollContainer.addEventListener('mousemove', (e) => {
+  if (!isDown) return;
+  e.preventDefault();
+  const x = e.pageX - scrollContainer.offsetLeft;
+  const walk = (x - startX) * 2; // Scroll speed multiplier
+  scrollContainer.scrollLeft = scrollLeft - walk;
+  updateScrollIndicators();
+});
+
+// Touch events for mobile
+scrollContainer.addEventListener('touchstart', (e) => {
+  isDown = true;
+  startX = e.touches[0].pageX - scrollContainer.offsetLeft;
+  scrollLeft = scrollContainer.scrollLeft;
+});
+
+scrollContainer.addEventListener('touchend', () => {
+  isDown = false;
+});
+
+scrollContainer.addEventListener('touchmove', (e) => {
+  if (!isDown) return;
+  e.preventDefault();
+  const x = e.touches[0].pageX - scrollContainer.offsetLeft;
+  const walk = (x - startX) * 2;
+  scrollContainer.scrollLeft = scrollLeft - walk;
+  updateScrollIndicators();
+});
+
+// Update scroll indicators
+function updateScrollIndicators() {
+  const canScrollLeft = scrollContainer.scrollLeft > 0;
+  const canScrollRight = scrollContainer.scrollLeft < scrollContainer.scrollWidth - scrollContainer.clientWidth;
+  
+  scrollContainer.classList.toggle('can-scroll-left', canScrollLeft);
+  scrollContainer.classList.toggle('can-scroll-right', canScrollRight);
+}
+
+// Initial check and scroll event listener
+updateScrollIndicators();
+scrollContainer.addEventListener('scroll', updateScrollIndicators);
 
 // Search
 document.getElementById("searchBtn").addEventListener("click",async ()=> {
@@ -194,10 +535,225 @@ document.getElementById("searchBtn").addEventListener("click",async ()=> {
   try {
     const response = await fetch(`http://localhost:5000/products?q=${encodeURIComponent(query)}`);
     const products = await response.json();
-    if(products.length>0) showResults(`Search results for "${query}"`,products);
-    else showResults(`Search results for "${query}"`,[{name:"No results found",price:"-",image:"images/default-banner.jpg"}]);
-  } catch(err){ console.error(err); showResults(`Search results for "${query}"`,[{name:"Error fetching products",price:"-",image:"images/default-banner.jpg"}]); }
+    showResults(`Search results for "${query}"`, products);
+  } catch(err){ console.error(err); showResults(`Search results for "${query}"`, []); }
 });
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // === Chatbot Logic ===
+  const chatToggle = document.getElementById('chat-toggle');
+  const chatWindow = document.getElementById('chat-window');
+  const chatClose = document.getElementById('chat-close');
+  const chatInput = document.getElementById('chat-input');
+  const chatSend = document.getElementById('chat-send');
+  const chatBody = document.getElementById('chat-body');
+
+  let isFirstChatOpen = true;
+
+  chatToggle.addEventListener('click', () => {
+    if (!chatWindow) return;
+    chatWindow.classList.toggle('hidden');
+    if (isFirstChatOpen && !chatWindow.classList.contains('hidden')) {
+      addMessageToChat('bot', "Hello! I'm HiveHelper. How can I assist you today? You can ask me about returns, shipping, or how to become a seller.");
+      isFirstChatOpen = false;
+    }
+  });
+
+  chatClose.addEventListener('click', () => chatWindow.classList.add('hidden'));
+
+  const sendMessage = () => {
+    const userMessage = chatInput.value.trim();
+    if (userMessage === '') return;
+
+    addMessageToChat('user', userMessage);
+    chatInput.value = '';
+
+    // Simulate bot thinking and get response
+    setTimeout(() => {
+      const botResponse = getBotResponse(userMessage);
+      addMessageToChat('bot', botResponse);
+    }, 500);
+  };
+
+  chatSend.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  function addMessageToChat(sender, message) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('chat-message', sender);
+    messageElement.textContent = message;
+    chatBody.appendChild(messageElement);
+    chatBody.scrollTop = chatBody.scrollHeight; // Auto-scroll to the bottom
+  }
+
+  const knowledgeBase = {
+    // Greetings & Basic Interaction
+    greeting: {
+      keywords: ['hello', 'hi', 'hey', 'good morning', 'good afternoon'],
+      response: "Hello there! I'm HiveHelper. How can I assist you today?"
+    },
+    howAreYou: {
+      keywords: ['how are you', 'how is it going'],
+      response: "I'm a bot, so I'm always running at 100%! How can I help you?"
+    },
+    thankYou: {
+      keywords: ['thanks', 'thank you', 'appreciate it'],
+      response: "You're very welcome! Is there anything else I can help with?"
+    },
+    // Customer Support & Policy
+    returns: {
+      keywords: ['return', 'refund', 'exchange', 'defective', 'broken', 'wrong item'],
+      response: "Our return policy allows for returns within 14 days of delivery for most items. Products must be in their original condition. To start a return, please visit your order history on your profile page."
+    },
+    shipping: {
+      keywords: ['shipping', 'delivery', 'how long', 'ship to'],
+      response: "We offer standard shipping across the country, which typically takes 5-7 business days. Shipping costs are calculated at checkout based on your location and the items in your cart."
+    },
+    trackOrder: {
+      keywords: ['track my order', 'where is my order', 'order status'],
+      response: "You can view your order history and tracking information on your profile page. I can't access specific order details just yet, but I'm learning!"
+    },
+    paymentMethods: {
+      keywords: ['payment', 'pay with', 'credit card', 'upi', 'paypal'],
+      response: "We accept all major credit cards, debit cards, and UPI payments for a secure and easy checkout process."
+    },
+    // Product Questions
+    productInfo: {
+      keywords: ['materials', 'made of', 'size', 'dimensions'],
+      response: "For specific details about a product's materials or dimensions, please check the product description on its page. Our artisans provide as much detail as possible!"
+    },
+    customOrder: {
+      keywords: ['custom', 'personalize', 'made to order', 'customization'],
+      response: "Some of our artisans offer custom or personalized orders! The best way to inquire is to find a product you like from the artisan and see if they mention custom work in their shop or product description."
+    },
+    // Seller Questions
+    becomeSeller: {
+      keywords: ['become a seller', 'how to sell', 'join as an artisan'],
+      response: "That's wonderful! To become a seller on MakeHive, please click the 'Become a Seller' button in the navigation bar to start your application. We'd love to have you!"
+    },
+    sellerFees: {
+      keywords: ['seller fees', 'commission', 'how much does it cost to sell'],
+      response: "MakeHive has a simple fee structure. We take a small commission on each sale, which helps us maintain the platform and bring new customers to you. There are no listing fees!"
+    },
+    addProduct: {
+      keywords: ['add a product', 'list an item'],
+      response: "You can add new products from your Seller Dashboard. Just fill out the 'Add New Product' form with the name, description, and price."
+    },
+    // About MakeHive
+    aboutUs: {
+      keywords: ['about makehive', 'who are you', 'what is this site'],
+      response: "MakeHive is a marketplace dedicated to connecting talented artisans and small businesses with customers who appreciate unique, handcrafted products. Every purchase supports a dream!"
+    },
+    // Account Management
+    accountHelp: {
+      keywords: ['my account', 'change email', 'update profile'],
+      response: "You can manage your account details from your profile page. Currently, you can view your name and email there."
+    },
+    forgotPassword: {
+      keywords: ['forgot password', 'reset password', 'can\'t log in'],
+      response: "If you've forgotten your password, you can use the 'Forgot Password?' link on the login page to reset it."
+    },
+    deleteAccount: {
+      keywords: ['delete my account', 'close account', 'remove profile'],
+      response: "We're sorry to see you go! To delete your account, please contact our support team, and they will assist you with the process."
+    },
+    // More Product Questions
+    outOfStock: {
+      keywords: ['out of stock', 'sold out', 'restock', 'notify me'],
+      response: "Many of our items are one-of-a-kind! If a product is sold out, we recommend checking the artisan's other products. We don't have a restock notification feature at this time."
+    },
+    bulkOrder: {
+      keywords: ['bulk', 'wholesale', 'large order', 'discount'],
+      response: "For bulk or wholesale inquiries, it's best to check the individual seller's page or product description to see if they offer this option."
+    },
+    // Gifting
+    gifting: {
+      keywords: ['gift', 'present', 'gift wrap', 'gift message'],
+      response: "What a thoughtful idea! While we don't have a centralized gift-wrapping service, some individual artisans may offer it. Please check the product description for details."
+    },
+    // Technical & Security
+    siteIssue: {
+      keywords: ['website not working', 'page not loading', 'error'],
+      response: "I'm sorry you're experiencing an issue! Please try refreshing the page. If the problem persists, clearing your browser cache can sometimes help."
+    },
+    security: {
+      keywords: ['is it safe', 'secure', 'privacy', 'my data'],
+      response: "We take your security and privacy very seriously. All payments are processed securely, and we never store your full credit card information. You can read our full privacy policy for more details."
+    },
+    // More Seller Questions
+    sellerPayout: {
+      keywords: ['get paid', 'payout', 'payment for sellers'],
+      response: "Sellers receive their payouts based on the payment details provided during registration. Payments are typically processed after an order is successfully delivered."
+    },
+    sellerShipping: {
+      keywords: ['how do I ship', 'seller shipping', 'packaging'],
+      response: "As a seller, you are responsible for packaging and shipping your products to the customer. We recommend using reliable courier services and providing tracking information."
+    },
+    disputes: {
+      keywords: ['dispute', 'problem with order', 'customer complaint'],
+      response: "If there's an issue with an order, we encourage direct communication between the buyer and seller first. If the issue cannot be resolved, please contact MakeHive support for assistance."
+    },
+    // Conversational / Meta
+    botName: {
+      keywords: ['your name'],
+      response: "You can call me HiveHelper! I'm the friendly assistant for the MakeHive community."
+    },
+    isBot: {
+      keywords: ['are you a robot', 'are you human', 'bot?'],
+      response: "I'm an AI assistant designed to help you with your questions about MakeHive. While I'm not human, I'm always here to help!"
+    },
+    contactSupport: {
+      keywords: ['contact', 'support', 'help', 'talk to someone'],
+      response: "For issues I can't resolve, you can reach our customer support team by emailing support@makehive.com."
+    },
+    joke: {
+      keywords: ['tell me a joke', 'make me laugh'],
+      response: "Why don't scientists trust atoms? Because they make up everything!"
+    }
+  };
+
+  function getBotResponse(userInput) {
+    const lowerInput = userInput.toLowerCase();
+
+    // Iterate through the knowledge base to find a keyword match
+    for (const key in knowledgeBase) {
+      const entry = knowledgeBase[key];
+      for (const keyword of entry.keywords) {
+        if (lowerInput.includes(keyword)) {
+          return entry.response;
+        }
+      }
+    }
+
+    // Default response if no keywords match
+    return "I'm still learning and can't answer that question yet. For more complex issues, please contact our support team.";
+  }
+});
+</script>
+
+
+<!-- Chatbot UI -->
+<div class="chatbot-container">
+  <div id="chat-toggle" class="chat-toggle-button">
+    HiveHelper
+  </div>
+  <div id="chat-window" class="chat-window hidden">
+    <div class="chat-header">
+      <h3>HiveHelper</h3>
+      <button id="chat-close" class="chat-close-btn">✕</button>
+    </div>
+    <div id="chat-body" class="chat-body">
+      <!-- Messages will be appended here -->
+    </div>
+    <div class="chat-footer">
+      <input type="text" id="chat-input" placeholder="Ask a question...">
+      <button id="chat-send">Send</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

@@ -9,100 +9,200 @@
     body {
       margin: 0;
       padding: 0;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-family: Arial, sans-serif;
-      position: relative;
-      background: url("images/banner.png") no-repeat center center/cover;
+      font-family: 'Poppins', sans-serif;
+      background: #fdfcfb;
     }
-    body::before {
+
+    .login-wrapper {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      background: url('images/banner.png') no-repeat center center/cover;
+      position: relative;
+    }
+    
+    .login-wrapper::before {
       content: "";
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(244, 217, 208, 0.6);
+      background: rgba(255, 250, 246, 0.4);
+      backdrop-filter: blur(8px);
       z-index: 0;
     }
+
     .login-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 900px;
       width: 100%;
-      max-width: 400px;
       padding: 40px;
       border-radius: 20px;
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-      text-align: center;
+      background: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      animation: slideUp 0.7s ease-out forwards;
+      opacity: 0;
       position: relative;
       z-index: 1;
     }
-    .brand {
-      font-family: 'Dancing Script', cursive;
-      font-size: 48px;
+
+    .welcome {
+      flex: 1;
+      padding-right: 30px;
+      color: #333;
+    }
+    .welcome h1 {
+      font-size: 2.8rem;
       margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .welcome h1 .brand {
+      font-family: 'Dancing Script', cursive;
+      font-size: 3.5rem;
       color: #8c3d0c;
     }
-    h2 {
+    .welcome h1::after {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 3px;
+      background: #e6b8a2;
+      margin-top: 15px;
+    }
+    .welcome p {
+      font-size: 1.1rem;
+      font-style: italic;
+      line-height: 1.5;
+      color: #444;
+    }
+
+    .form-box {
+      flex: 1;
+      padding: 40px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+    .form-box h2 {
       margin-bottom: 20px;
       color: #333;
+      text-align: center;
+      font-size: 1.8rem;
     }
-    form input {
+    .form-group {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      position: absolute;
+      left: 0;
+      top: 10px;
+      pointer-events: none;
+      color: #aaa;
+      transition: all 0.3s ease;
+    }
+    .form-box input {
       width: 100%;
-      padding: 12px;
-      margin: 12px 0;
+      padding: 10px 0;
       border: none;
-      border-radius: 8px;
+      border-bottom: 2px solid #ddd;
+      background: transparent;
       outline: none;
-      font-size: 14px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
     }
-    form button {
+    .form-box input:focus,
+    .form-box input:not(:placeholder-shown) {
+      border-bottom-color: #e6b8a2;
+    }
+    .form-box input:focus + label,
+    .form-box input:not(:placeholder-shown) + label {
+      top: -15px;
+      font-size: 0.8rem;
+      color: #e6b8a2;
+    }
+    .form-box input:focus::placeholder {
+      color: transparent;
+    }
+    .form-box button {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       border: none;
       border-radius: 25px;
-      background: linear-gradient(90deg, #ff6a00, #ff4081);
+      background: #e6b8a2;
       color: white;
-      font-weight: bold;
+      font-weight: 600;
+      font-size: 1.1rem;
       cursor: pointer;
       margin-top: 10px;
+      transition: background 0.3s ease;
+    }
+    .form-box button:hover {
+      background: #d49a7b;
     }
     #loginMessage {
-      margin-top: 10px;
-      font-size: 14px;
+      margin-top: 8px;
+      font-size: 0.9rem;
+      min-height: 1em;
     }
     .links {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #333;
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.9rem;
     }
     .links a {
-      color: #ff6a00;
+      color: #8c3d0c;
       text-decoration: none;
-      font-weight: bold;
+      font-weight: 600;
     }
     .links a:hover {
       text-decoration: underline;
     }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
   </style>
 </head>
 <body>
-  <div class="login-container">
-    <h1 class="brand">MakeHive</h1>
-    <h2>Login</h2>
-    <form id="loginForm">
-      <input type="email" id="loginEmail" placeholder="Email" required>
-      <input type="password" id="loginPassword" placeholder="Password" required>
-      <button type="submit">Sign In</button>
-      <div id="loginMessage"></div>
-    </form>
+  <div class="login-wrapper">
+    <div class="login-container">
+      <div class="welcome">
+        <h1>Welcome to <span class="brand">MakeHive</span></h1>
+        <p>Big dreams start small – let’s make them happen.</p>
+      </div>
 
-    <div class="links">
-      <a href="forgot-password.html">Forgot password?</a>
-      <p>Don’t have an account? <a href="signup.html">Sign up</a></p>
+      <div class="form-box">
+        <h2>Login</h2>
+        <form id="loginForm">
+          <div class="form-group">
+            <input type="email" id="loginEmail" placeholder=" " required>
+            <label for="loginEmail">Email</label>
+          </div>
+          <div class="form-group">
+            <input type="password" id="loginPassword" placeholder=" " required>
+            <label for="loginPassword">Password</label>
+          </div>
+          <button type="submit">Sign In</button>
+          <div id="loginMessage"></div>
+        </form>
+
+        <div class="links">
+          <a href="forgot-password.html">Forgot password?</a>
+          <p>Don’t have an account? <a href="signup.html">Sign up</a></p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -132,7 +232,9 @@
 
         if (res.ok && data.token) {
           // ✅ Store JWT token in localStorage
-          localStorage.setItem("token", data.token); 
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("userRole", data.role); // Save user role
+          localStorage.setItem("isSeller", data.isSeller); // Save seller status
           showMessage("✅ Login successful! Token saved.", "success");
 
           // Redirect user after successful login

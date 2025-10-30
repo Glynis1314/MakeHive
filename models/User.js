@@ -20,6 +20,24 @@ const UserSchema = new mongoose.Schema(
       required: true,
       minlength: 6, // ensure passwords are at least 6 chars
     },
+      // Cart: array of { productId, quantity }
+      cart: [
+        {
+          productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product",
+          },
+          quantity: {
+            type: Number,
+            default: 1,
+          },
+        },
+      ],
+      role: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user'
+      }
   },
   { timestamps: true } // adds createdAt and updatedAt automatically
 );
