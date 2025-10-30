@@ -1,0 +1,222 @@
+/* Shared Styles for MakeHive */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  background-color: #fdfcfb;
+  color: #333;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Header/Navbar */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+  background: #fffaf6;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo {
+  font-family: "Dancing Script", cursive;
+  font-size: 32px;
+  color: #222;
+  text-decoration: none;
+}
+
+nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: #444;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+nav a:hover {
+  color: #ff4081;
+}
+
+/* Buttons */
+.primary-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #ff4081, #e73370);
+  color: white;
+  box-shadow: 0 4px 15px rgba(231, 51, 112, 0.2);
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(231, 51, 112, 0.3);
+}
+
+.secondary-btn {
+  padding: 10px 20px;
+  border: 2px solid #ff4081;
+  border-radius: 25px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: transparent;
+  color: #ff4081;
+}
+
+.secondary-btn:hover {
+  background: #ff4081;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Container */
+.page-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 20px;
+}
+
+/* Cards */
+.card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #eee;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+  border-color: #ff4081;
+  outline: none;
+}
+
+/* Footer */
+footer {
+  background: #fffaf6;
+  padding: 20px;
+  text-align: center;
+  margin-top: auto;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+}
+
+/* Dark Mode */
+body.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+header.dark-mode {
+  background-color: #1f1f1f;
+}
+
+.dark-mode .logo {
+  color: #e0e0e0;
+}
+
+.dark-mode .card {
+  background: #1f1f1f;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.dark-mode .form-input {
+  background: #2d2d2d;
+  border-color: #3d3d3d;
+  color: #e0e0e0;
+}
+
+.dark-mode footer {
+  background: #1f1f1f;
+}
+
+/* Loading Animation */
+.loading {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #ff4081;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Alert Messages */
+.alert {
+  padding: 15px;
+  border-radius: 8px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.alert-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+.alert-error {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  header {
+    padding: 15px 20px;
+    flex-wrap: wrap;
+  }
+  
+  nav {
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  nav a {
+    margin: 0;
+  }
+  
+  .page-container {
+    padding: 0 15px;
+  }
+}
